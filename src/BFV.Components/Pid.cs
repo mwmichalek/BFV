@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace BFV.Components {
-    public class Pid : Component<PidState>, IComponentStateChangePublisher<ComponentStateChange<PidState>> {
+    public class Pid : StateComponent<PidState>, ILocatableComponent, IComponentStateChangePublisher<ComponentStateChange<PidState>> {
 
         private readonly ILogger _logger;
 
@@ -16,13 +16,16 @@ namespace BFV.Components {
         public Pid(ILogger logger) {
             _logger = logger;
         }
-        
+
+        public Location Location { get; set; }
+
         public void ComponentStateChangePublisher(Action<ComponentStateChange<PidState>> publishStateChange) {
             _publishPidStateChange = publishStateChange;
         }
 
         public void Test() {
             _publishPidStateChange(new ComponentStateChange<PidState> {
+                Location = Location,
                 PriorState = new PidState(),
                 CurrentState = new PidState()
             });

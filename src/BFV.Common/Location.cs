@@ -16,4 +16,44 @@ namespace BFV.Common {
         FERM = 8
 
     }
+
+    public static class LocationHelper {
+
+        public static IList<Location> AllLocations = new List<Location>(new[] {
+            Location.HLT,
+            Location.MT_IN,
+            Location.MT,
+            Location.MT_OUT,
+            Location.BK,
+            Location.HEX_IN,
+            Location.HEX_OUT,
+            Location.FERM
+        });
+
+        public static IList<Location> PidLocations = new List<Location>(new[] {
+            Location.HLT,
+            Location.MT,
+            Location.BK,
+        });
+
+        public static IList<Location> SsrLocations = new List<Location>(new[]{
+            Location.HLT,
+            Location.BK
+        });
+
+        public static IList<Location> PumpComponentIds = new List<Location>(new[] {
+            Location.HLT,
+            Location.MT,
+            Location.BK,
+        });
+
+        public static Location ToLocation(this string locationStr) {
+            return (Location)Enum.Parse(typeof(Location), locationStr);
+        }
+
+        public static Location ToLocation(this int locationInt) {
+            return ToLocation(locationInt.ToString());
+        }
+
+    }
 }

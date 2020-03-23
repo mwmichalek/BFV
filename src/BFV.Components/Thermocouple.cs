@@ -4,9 +4,9 @@ using System;
 
 namespace BFV.Components {
 
-    
-    public class Thermocouple : Component<ThermocoupleState> {
 
-        
+    public class Thermocouple : StateComponent<ThermocoupleState>, ILocatableComponent {
+        public Location Location { get; set; }
+
     }
 }

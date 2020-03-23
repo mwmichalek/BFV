@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Text;
 
 using SimpleInjector.Advanced;
+using BFV.Common;
+using System.Linq;
 
 namespace BFV.Components {
     public static class ComponentRegistrator {
@@ -23,9 +25,11 @@ namespace BFV.Components {
                 .CreateLogger();
 
             container.Options.DependencyInjectionBehavior = new SerilogContextualLoggerInjectionBehavior(container.Options);
-
             container.Register<ILogger>(() => Log.Logger);
-            container.Register<Pid>();
+
+            var pids = LocationHelper.PidLocations.Select(pl => new Pid(Log.Logger) { Location = pl }).ToList();
+            container.Collection.Register<Pid>(pids);
+
             container.Register<LcdDisplay>();
 
             return container;
@@ -33,7 +37,10 @@ namespace BFV.Components {
             //Log.Logger.Information("Testing!");
 
             //container.
+        }
 
+        public static TComp GetInstance<TComp>(this Container container, Location location) where TComp : class, ILocatableComponent {
+            return (TComp)(container.GetAllInstances<TComp>()).SingleOrDefault(c => c.Location == location);
         }
     }
 

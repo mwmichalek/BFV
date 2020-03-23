@@ -16,7 +16,7 @@ namespace BFV.Components {
         }
 
         public void ComponentStateChangeOccurred(ComponentStateChange<PidState> stateChange) {
-            _logger.Debug("Print PidState");
+            _logger.Debug($"PidStateChangeOccured: {stateChange.Location}");
         }
     }
 }
