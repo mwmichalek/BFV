@@ -7,6 +7,7 @@ using System.Text;
 using SimpleInjector.Advanced;
 using BFV.Common;
 using System.Linq;
+using BFV.Components.States;
 
 namespace BFV.Components {
     public static class ComponentRegistrator {
@@ -26,6 +27,9 @@ namespace BFV.Components {
 
             container.Options.DependencyInjectionBehavior = new SerilogContextualLoggerInjectionBehavior(container.Options);
             container.Register<ILogger>(() => Log.Logger);
+
+            //var balls = new ThermocoupleState();
+
 
             var pids = LocationHelper.PidLocations.Select(pl => new Pid(Log.Logger) { Location = pl }).ToList();
             container.Collection.Register<Pid>(pids);

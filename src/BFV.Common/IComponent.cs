@@ -10,6 +10,12 @@ namespace BFV.Common {
 
     }
 
+    public interface IRefreshableComponent {
+
+        void Refresh();
+
+    }
+
     public interface ILocatableComponent {
 
         Location Location { get; set; }
