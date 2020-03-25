@@ -22,13 +22,13 @@ namespace BFV.Components {
 
         public Location Location { get; set; }
 
-        public void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
+        public virtual void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
             if (stateChange.Location == Location) {
                 _logger.Information($"Need to recalculate value for Pid: {Location}");
             }
         }
 
-        public void ComponentStateChangePublisher(Action<ComponentStateChange<PidState>> publishStateChange) {
+        public virtual void ComponentStateChangePublisher(Action<ComponentStateChange<PidState>> publishStateChange) {
             _publishPidStateChange = publishStateChange;
         }
 

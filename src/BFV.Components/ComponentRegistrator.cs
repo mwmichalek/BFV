@@ -42,20 +42,13 @@ namespace BFV.Components {
         }
 
         public static Container RegisterThermos<TThermo>(this Container container) where TThermo : Thermocouple {
-            List<TThermo> thermos = LocationHelper.AllLocations.Select(l => {
+            List<Thermocouple> thermos = LocationHelper.AllLocations.Select(l => {
                 TThermo thermo = (TThermo)Activator.CreateInstance(typeof(TThermo), new object[] { Log.Logger });
                 thermo.Location = l;
                 return thermo;
-            }).ToList<TThermo>();
+            }).ToList<Thermocouple>();
 
-            container.Collection.Register<Thermocouple>(thermos);
-
-            foreach (var thermo in thermos)
-                thermo.ComponentStateChangePublisher(Hub.Default.Publish<ComponentStateChange<ThermocoupleState>>);
-
-            // If in testMode, RandomFakedThermocouple should listen to PID changes
-
-            return container;
+            return container.RegisterThermos(thermos);
         }
 
         public static Container RegisterThermos(this Container container, List<Thermocouple> preexistingThermocouples = null) {
@@ -74,20 +67,13 @@ namespace BFV.Components {
         }
 
         public static Container RegisterPids<TPid>(this Container container) where TPid : Pid {
-            List<TPid> pids = LocationHelper.PidLocations.Select(l => {
+            List<Pid> pids = LocationHelper.PidLocations.Select(l => {
                 TPid pid = (TPid)Activator.CreateInstance(typeof(TPid), new object[] { Log.Logger });
                 pid.Location = l;
                 return pid;
-            }).ToList<TPid>();
+            }).ToList<Pid>();
 
-            container.Collection.Register<Pid>(pids);
-
-            foreach (var pid in pids) {
-                Hub.Default.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
-                pid.ComponentStateChangePublisher(Hub.Default.Publish<ComponentStateChange<PidState>>);
-            }
-
-            return container;
+            return container.RegisterPids(pids);
         }
 
         public static Container RegisterPids(this Container container, List<Pid> preexistingPids = null) {

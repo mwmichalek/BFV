@@ -36,7 +36,7 @@ namespace BFV.Test.Components {
 
             public TestPid(ILogger logger) : base(logger) { }
 
-            new public void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
+            public override void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
                 if (stateChange.Location == Location)
                     ThermocoupleStateChangeOccured = true;
             }
