@@ -7,7 +7,10 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace BFV.Components {
-    public class Pid : StateComponent<PidState>, ILocatableComponent, IComponentStateChangePublisher<ComponentStateChange<PidState>> {
+    public class Pid : StateComponent<PidState>, 
+                       ILocatableComponent, 
+                       IComponentStateChangePublisher<ComponentStateChange<PidState>>,
+                       IComponentStateChangeSubscriber<ComponentStateChange<ThermocoupleState>> {
 
         private readonly ILogger _logger;
 
@@ -19,17 +22,23 @@ namespace BFV.Components {
 
         public Location Location { get; set; }
 
+        public void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
+            if (stateChange.Location == Location) {
+                _logger.Information($"Need to recalculate value for Pid: {Location}");
+            }
+        }
+
         public void ComponentStateChangePublisher(Action<ComponentStateChange<PidState>> publishStateChange) {
             _publishPidStateChange = publishStateChange;
         }
 
-        public void Test() {
-            _publishPidStateChange(new ComponentStateChange<PidState> {
-                Location = Location,
-                PriorState = new PidState(),
-                CurrentState = new PidState()
-            });
-        }
+        //public void Test() {
+        //    _publishPidStateChange(new ComponentStateChange<PidState> {
+        //        Location = Location,
+        //        PriorState = new PidState(),
+        //        CurrentState = new PidState()
+        //    });
+        //}
     }
 
     public enum PidMode {

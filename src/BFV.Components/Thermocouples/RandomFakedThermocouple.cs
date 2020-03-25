@@ -1,4 +1,5 @@
-﻿using BFV.Components.States;
+﻿using BFV.Common.Events;
+using BFV.Components.States;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -15,11 +16,15 @@ namespace BFV.Components.Thermocouples {
 
         public override void Refresh() {
             int integer = random.Next(-100, 100);
-            decimal fraction = integer / 100;
+            double fraction = integer / 100;
 
-            
+            PriorState = CurrentState;
+            CurrentState = new ThermocoupleState {
+                Temperature = PriorState.Temperature + fraction
+            };
+
+            _publishThermocoupleStateChange(this.ToComponentStateChange());
+
         }
-
-
     }
 }

@@ -8,7 +8,8 @@ namespace BFV.Components.Thermocouples {
 
 
     public class Thermocouple : StateComponent<ThermocoupleState>, 
-                                IComponentStateChangePublisher<ComponentStateChange<ThermocoupleState>>, 
+                                IComponentStateChangePublisher<ComponentStateChange<ThermocoupleState>>,
+                                //IComponentStateChangeSubscriber<ThermocoupleState>,
                                 ILocatableComponent,
                                 IRefreshableComponent {
 
@@ -16,7 +17,7 @@ namespace BFV.Components.Thermocouples {
 
         public Location Location { get; set; }
 
-        private Action<ComponentStateChange<ThermocoupleState>> _publishThermocoupleStateChange;
+        protected Action<ComponentStateChange<ThermocoupleState>> _publishThermocoupleStateChange;
 
         public Thermocouple(ILogger logger) {
             _logger = logger;
@@ -29,5 +30,9 @@ namespace BFV.Components.Thermocouples {
         public virtual void Refresh() {
             // Read hardware
         }
+
+        //public void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
+        //    _publishThermocoupleStateChange = publishStateChange;
+        //}
     }
 }

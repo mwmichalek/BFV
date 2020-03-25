@@ -2,7 +2,8 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <OutputType>Exe</OutputType>
-    <AssemblyName>Appliance</AssemblyName>
+    <AssemblyName>BFV.Appliance</AssemblyName>
+    <RootNamespace>BFV.Appliance</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Meadow.Foundation" Version="0.13.2" />

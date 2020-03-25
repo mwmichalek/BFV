@@ -6,11 +6,13 @@ namespace BFV.Common.Events {
     public interface IComponentState {
     }
 
-    public abstract class ComponentState<T> : IComponentState where T : IComponentState {
+    public abstract class ComponentState<TSubclass> : IComponentState where TSubclass : IComponentState {
 
         public DateTime Timestamp { get; set; } = DateTime.Now;
 
-        public abstract T Clone();
+        public abstract TSubclass Clone();
+
+
 
     }
 }

@@ -22,13 +22,26 @@ namespace BFV.Common {
 
     }
 
-
-
     public abstract class StateComponent<TState> : IComponent where TState : IComponentState {
 
         public TState PriorState { get; set; }
 
         public TState CurrentState { get; set; }
+
+        public ComponentStateChange<TState> ToComponentStateChange() {
+            if (this is ILocatableComponent) {
+                return new ComponentStateChange<TState> {
+                    Location = ((ILocatableComponent)this).Location,
+                    PriorState = PriorState,
+                    CurrentState = CurrentState
+                };
+            }
+
+            return new ComponentStateChange<TState> {
+                PriorState = PriorState,
+                CurrentState = CurrentState
+            };
+        }
 
     }
 }

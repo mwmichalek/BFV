@@ -2,6 +2,7 @@ using BFV.Common;
 using BFV.Common.Events;
 using BFV.Components;
 using BFV.Components.States;
+using BFV.Components.Thermocouples;
 using PubSub;
 using SimpleInjector;
 using System;
@@ -13,34 +14,41 @@ namespace BFV.Test.Components {
         [Fact]
         public void TriggeredChange() {
 
-            var container = ComponentRegistrator.ComponentRegistry();
+            var container = ComponentRegistrator.ComponentRegistry(testMode: true);
 
             var pid = container.GetInstance<Pid>(Location.HLT);
+            var thermo = container.GetInstance<Thermocouple>(Location.HLT);
+            
+            
+            //bool publishedStateChanged = false;
+            //Action<ComponentStateChange<PidState>> publishStateChange = (cs) => {
+            //    publishedStateChanged = true;
+            //};
 
-            bool publishedStateChanged = false;
-            Action<ComponentStateChange<PidState>> publishStateChange = (cs) => {
-                publishedStateChanged = true;
-            };
 
+            //pid.ComponentStateChangePublisher(publishStateChange);
 
-            pid.ComponentStateChangePublisher(publishStateChange);
-
-            var display = container.GetInstance<LcdDisplay>();
+            //var display = container.GetInstance<LcdDisplay>();
 
 
 
             var hub = Hub.Default;
 
-          
+            thermo.ComponentStateChangePublisher(hub.Publish<ComponentStateChange<ThermocoupleState>>);
+            hub.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
+
+
+            thermo.Refresh();
+
             //pid.PidStateChangePublisher(hub.Publish<PidStateChange>);
             //pid.ComponentStateChangePublisher(hub.Publish<ComponentStateChange<PidState>>);
 
 
-            hub.Subscribe<ComponentStateChange<PidState>>(display.ComponentStateChangeOccurred);
+            //hub.Subscribe<ComponentStateChange<PidState>>(display.ComponentStateChangeOccurred);
 
-            pid.Test();
 
-            Assert.True(publishedStateChanged);
+
+            //Assert.True(publishedStateChanged);
         }
     }
 }
