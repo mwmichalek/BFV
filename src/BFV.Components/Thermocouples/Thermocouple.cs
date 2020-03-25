@@ -8,7 +8,7 @@ namespace BFV.Components.Thermocouples {
 
 
     public class Thermocouple : StateComponent<ThermocoupleState>, 
-                                IComponentStateChangePublisher<ComponentStateChange<ThermocoupleState>>,
+                                IComponentStateChangePublisher<ThermocoupleState>,
                                 //IComponentStateChangeSubscriber<ThermocoupleState>,
                                 ILocatableComponent,
                                 IRefreshableComponent {
@@ -31,8 +31,6 @@ namespace BFV.Components.Thermocouples {
             // Read hardware
         }
 
-        //public void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
-        //    _publishThermocoupleStateChange = publishStateChange;
-        //}
+       
     }
 }

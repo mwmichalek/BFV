@@ -4,10 +4,7 @@ using System.Text;
 
 namespace BFV.Common.Events {
 
-    public interface IComponentStateChange { }
-
-
-    public class ComponentStateChange<TState> : IComponentStateChange where TState : IComponentState {
+    public class ComponentStateChange<TState> where TState : IComponentState {
 
         public Location Location { get; set; }
 

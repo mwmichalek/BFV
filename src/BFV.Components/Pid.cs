@@ -9,8 +9,8 @@ using System.Text;
 namespace BFV.Components {
     public class Pid : StateComponent<PidState>, 
                        ILocatableComponent, 
-                       IComponentStateChangePublisher<ComponentStateChange<PidState>>,
-                       IComponentStateChangeSubscriber<ComponentStateChange<ThermocoupleState>> {
+                       IComponentStateChangePublisher<PidState>,
+                       IComponentStateChangeSubscriber<ThermocoupleState> {
 
         private readonly ILogger _logger;
 

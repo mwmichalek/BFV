@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace BFV.Components {
-    public class LcdDisplay : IComponent, IComponentStateChangeSubscriber<ComponentStateChange<PidState>> {
+    public class LcdDisplay : IComponent, IComponentStateChangeSubscriber<PidState> {
 
         private readonly ILogger _logger;
 
