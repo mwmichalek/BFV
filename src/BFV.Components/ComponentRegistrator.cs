@@ -15,12 +15,11 @@ using BFV.Common.Events;
 namespace BFV.Components {
     public static class ComponentRegistrator {
 
-
-        public static Container ComponentRegistry(bool testMode = false) {
-            return new Container().RegisterComponents(testMode);
+        public static Container ComponentRegistry() {
+            return new Container();
         }
 
-        public static Container RegisterComponents(this Container container, bool testMode = false) {
+        public static Container RegisterAllComponents(this Container container) {
 
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -31,52 +30,88 @@ namespace BFV.Components {
             container.Options.DependencyInjectionBehavior = new SerilogContextualLoggerInjectionBehavior(container.Options);
             container.Register<ILogger>(() => Log.Logger);
 
-            var hub = Hub.Default;
-            container.Register<Hub>(() => hub);
+            container.Register<Hub>(() => Hub.Default);
 
-            container.RegisterThermos(hub, testMode);
+            container.RegisterThermos();
 
-            container.RegisterPids(hub, testMode);
+            container.RegisterPids();
 
-            container.RegisterDisplay(hub, testMode);
+            container.RegisterDisplay();
 
             return container;
         }
 
-        private static Container RegisterThermos(this Container container, Hub hub, bool testMode = false) {
-            List<Thermocouple> thermos = (testMode) ?
-                LocationHelper.AllLocations.Select(l => new RandomFakedThermocouple(Log.Logger) { Location = l }).ToList<Thermocouple>() :
-                LocationHelper.AllLocations.Select(l => new Thermocouple(Log.Logger) { Location = l }).ToList<Thermocouple>();
+        public static Container RegisterThermos<TThermo>(this Container container) where TThermo : Thermocouple {
+            List<TThermo> thermos = LocationHelper.AllLocations.Select(l => {
+                TThermo thermo = (TThermo)Activator.CreateInstance(typeof(TThermo), new object[] { Log.Logger });
+                thermo.Location = l;
+                return thermo;
+            }).ToList<TThermo>();
+
             container.Collection.Register<Thermocouple>(thermos);
 
             foreach (var thermo in thermos)
-                thermo.ComponentStateChangePublisher(hub.Publish<ComponentStateChange<ThermocoupleState>>);
+                thermo.ComponentStateChangePublisher(Hub.Default.Publish<ComponentStateChange<ThermocoupleState>>);
 
             // If in testMode, RandomFakedThermocouple should listen to PID changes
 
             return container;
         }
 
-        private static Container RegisterPids(this Container container, Hub hub, bool testMode = false) {
+        public static Container RegisterThermos(this Container container, List<Thermocouple> preexistingThermocouples = null) {
+            List<Thermocouple> thermos = (preexistingThermocouples == null) ?
+                LocationHelper.AllLocations.Select(l => new Thermocouple(Log.Logger) { Location = l }).ToList<Thermocouple>() :
+                preexistingThermocouples;
 
-            var pids = LocationHelper.PidLocations.Select(l => new Pid(Log.Logger) { Location = l }).ToList();
+            container.Collection.Register<Thermocouple>(thermos);
+
+            foreach (var thermo in thermos)
+                thermo.ComponentStateChangePublisher(Hub.Default.Publish<ComponentStateChange<ThermocoupleState>>);
+
+            // If in testMode, RandomFakedThermocouple should listen to PID changes
+
+            return container;
+        }
+
+        public static Container RegisterPids<TPid>(this Container container) where TPid : Pid {
+            List<TPid> pids = LocationHelper.PidLocations.Select(l => {
+                TPid pid = (TPid)Activator.CreateInstance(typeof(TPid), new object[] { Log.Logger });
+                pid.Location = l;
+                return pid;
+            }).ToList<TPid>();
+
             container.Collection.Register<Pid>(pids);
 
             foreach (var pid in pids) {
-                hub.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
-                pid.ComponentStateChangePublisher(hub.Publish<ComponentStateChange<PidState>>);
+                Hub.Default.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
+                pid.ComponentStateChangePublisher(Hub.Default.Publish<ComponentStateChange<PidState>>);
             }
 
             return container;
         }
 
-        private static Container RegisterDisplay(this Container container, Hub hub, bool testMode = false) {
+        public static Container RegisterPids(this Container container, List<Pid> preexistingPids = null) {
+
+            List<Pid> pids = (preexistingPids == null) ?
+                LocationHelper.PidLocations.Select(l => new Pid(Log.Logger) { Location = l }).ToList() :
+                preexistingPids;
+            container.Collection.Register<Pid>(pids);
+
+            foreach (var pid in pids) {
+                Hub.Default.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
+                pid.ComponentStateChangePublisher(Hub.Default.Publish<ComponentStateChange<PidState>>);
+            }
+
+            return container;
+        }
+
+        public static Container RegisterDisplay(this Container container) {
 
             var display = new LcdDisplay(Log.Logger);
             container.Register<LcdDisplay>(() => display);
 
-            hub.Subscribe<ComponentStateChange<ThermocoupleState>>(display.ComponentStateChangeOccurred);
-            hub.Subscribe<ComponentStateChange<PidState>>(display.ComponentStateChangeOccurred);
+            Hub.Default.Subscribe<ComponentStateChange<ThermocoupleState>>(display.ComponentStateChangeOccurred);
+            Hub.Default.Subscribe<ComponentStateChange<PidState>>(display.ComponentStateChangeOccurred);
 
             return container;
         }

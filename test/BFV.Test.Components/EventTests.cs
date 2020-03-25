@@ -4,6 +4,7 @@ using BFV.Components;
 using BFV.Components.States;
 using BFV.Components.Thermocouples;
 using PubSub;
+using Serilog;
 using SimpleInjector;
 using System;
 using System.Linq;
@@ -12,43 +13,35 @@ using Xunit;
 namespace BFV.Test.Components {
     public class EventTests {
         [Fact]
-        public void TriggeredChange() {
+        public void CorrectPidAlertedWhenTemperatureChanges() {
 
-            var container = ComponentRegistrator.ComponentRegistry(testMode: true);
+            var container = ComponentRegistrator.ComponentRegistry()
+                                                .RegisterThermos<RandomFakedThermocouple>()
+                                                .RegisterPids<TestPid>();
 
-            //var pid = container.GetInstance<Pid>(Location.HLT);
             var thermo = container.GetInstance<Thermocouple>(Location.HLT);
-            
-            
-            //bool publishedStateChanged = false;
-            //Action<ComponentStateChange<PidState>> publishStateChange = (cs) => {
-            //    publishedStateChanged = true;
-            //};
-
-
-            //pid.ComponentStateChangePublisher(publishStateChange);
-
-            //var display = container.GetInstance<LcdDisplay>();
-
-
-
-            
-
-            //thermo.ComponentStateChangePublisher(hub.Publish<ComponentStateChange<ThermocoupleState>>);
-            //hub.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
-
+            TestPid correctPid = (TestPid)container.GetInstance<Pid>(Location.HLT);
+            TestPid incorrectPid = (TestPid)container.GetInstance<Pid>(Location.BK);
 
             thermo.Refresh();
 
-            //pid.PidStateChangePublisher(hub.Publish<PidStateChange>);
-            //pid.ComponentStateChangePublisher(hub.Publish<ComponentStateChange<PidState>>);
-
-
-            //hub.Subscribe<ComponentStateChange<PidState>>(display.ComponentStateChangeOccurred);
-
-
-
-            //Assert.True(publishedStateChanged);
+            Assert.True(correctPid.ThermocoupleStateChangeOccured);
+            Assert.False(incorrectPid.ThermocoupleStateChangeOccured);
         }
+
+
+        public class TestPid : Pid {
+
+            public bool ThermocoupleStateChangeOccured { get; set; }
+
+            public TestPid(ILogger logger) : base(logger) { }
+
+            new public void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
+                if (stateChange.Location == Location)
+                    ThermocoupleStateChangeOccured = true;
+            }
+
+        }
+
     }
 }
