@@ -16,7 +16,7 @@ namespace BFV.Test.Components {
 
             var container = ComponentRegistrator.ComponentRegistry(testMode: true);
 
-            var pid = container.GetInstance<Pid>(Location.HLT);
+            //var pid = container.GetInstance<Pid>(Location.HLT);
             var thermo = container.GetInstance<Thermocouple>(Location.HLT);
             
             
@@ -32,10 +32,10 @@ namespace BFV.Test.Components {
 
 
 
-            var hub = Hub.Default;
+            
 
-            thermo.ComponentStateChangePublisher(hub.Publish<ComponentStateChange<ThermocoupleState>>);
-            hub.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
+            //thermo.ComponentStateChangePublisher(hub.Publish<ComponentStateChange<ThermocoupleState>>);
+            //hub.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
 
 
             thermo.Refresh();

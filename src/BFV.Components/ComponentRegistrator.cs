@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
-
+using PubSub;
 using SimpleInjector.Advanced;
 using BFV.Common;
 using System.Linq;
@@ -27,43 +27,56 @@ namespace BFV.Components {
                 .Enrich.FromLogContext()
                 .WriteTo.Trace()
                 .CreateLogger();
-            List<IComponent> components = new List<IComponent>();
 
             container.Options.DependencyInjectionBehavior = new SerilogContextualLoggerInjectionBehavior(container.Options);
             container.Register<ILogger>(() => Log.Logger);
 
+            var hub = Hub.Default;
+            container.Register<Hub>(() => hub);
 
+            container.RegisterThermos(hub, testMode);
+
+            container.RegisterPids(hub, testMode);
+
+            container.RegisterDisplay(hub, testMode);
+
+            return container;
+        }
+
+        private static Container RegisterThermos(this Container container, Hub hub, bool testMode = false) {
             List<Thermocouple> thermos = (testMode) ?
                 LocationHelper.AllLocations.Select(l => new RandomFakedThermocouple(Log.Logger) { Location = l }).ToList<Thermocouple>() :
                 LocationHelper.AllLocations.Select(l => new Thermocouple(Log.Logger) { Location = l }).ToList<Thermocouple>();
             container.Collection.Register<Thermocouple>(thermos);
-            components.AddRange(thermos);
+
+            foreach (var thermo in thermos)
+                thermo.ComponentStateChangePublisher(hub.Publish<ComponentStateChange<ThermocoupleState>>);
+
+            // If in testMode, RandomFakedThermocouple should listen to PID changes
+
+            return container;
+        }
+
+        private static Container RegisterPids(this Container container, Hub hub, bool testMode = false) {
 
             var pids = LocationHelper.PidLocations.Select(l => new Pid(Log.Logger) { Location = l }).ToList();
             container.Collection.Register<Pid>(pids);
-            components.AddRange(pids);
+
+            foreach (var pid in pids) {
+                hub.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
+                pid.ComponentStateChangePublisher(hub.Publish<ComponentStateChange<PidState>>);
+            }
+
+            return container;
+        }
+
+        private static Container RegisterDisplay(this Container container, Hub hub, bool testMode = false) {
 
             var display = new LcdDisplay(Log.Logger);
             container.Register<LcdDisplay>(() => display);
-            components.Add(display);
 
-            var bfvAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.FullName.Contains("BFV.")).ToList();
-
-            var componentStateTypes = bfvAssemblies.SelectMany(x => x.GetTypes())
-                .Where(x => typeof(IComponentState).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
-                .Select(x => x.Name).ToList();
-
-            var publishers = bfvAssemblies.SelectMany(x => x.GetTypes())
-                .Where(x => typeof(IComponentStateChangePublisher<>).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract).ToList();
-
-            var subscribers = bfvAssemblies.SelectMany(x => x.GetTypes())
-                .Where(x => typeof(IComponentStateChangeSubscriber<>).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract).ToList();
-            //foreach (var componentStateType in componentStateTypes)
-
-
-            //thermo.ComponentStateChangePublisher(hub.Publish<ComponentStateChange<ThermocoupleState>>);
-            //hub.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
-
+            hub.Subscribe<ComponentStateChange<ThermocoupleState>>(display.ComponentStateChangeOccurred);
+            hub.Subscribe<ComponentStateChange<PidState>>(display.ComponentStateChangeOccurred);
 
             return container;
         }
@@ -91,5 +104,14 @@ namespace BFV.Components {
 
         private InstanceProducer<ILogger> GetLoggerInstanceProducer(Type type) =>
             Lifestyle.Transient.CreateProducer(() => Log.ForContext(type), _container);
+    }
+
+    public static class InterfaceHelper { 
+        public static bool Implements<I>(this Type type, I @interface) where I : class {
+            if (((@interface as Type) == null) || !(@interface as Type).IsInterface)
+                return false;
+            return (@interface as Type).IsAssignableFrom(type);
+        }
+
     }
 }
