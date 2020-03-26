@@ -32,13 +32,6 @@ namespace BFV.Components {
             _publishPidStateChange = publishStateChange;
         }
 
-        //public void Test() {
-        //    _publishPidStateChange(new ComponentStateChange<PidState> {
-        //        Location = Location,
-        //        PriorState = new PidState(),
-        //        CurrentState = new PidState()
-        //    });
-        //}
     }
 
     public enum PidMode {

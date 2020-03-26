@@ -1,20 +1,17 @@
-using BFV.Common;
-using BFV.Common.Events;
-using BFV.Components;
-using BFV.Components.States;
-using BFV.Components.Thermocouples;
-using PubSub;
-using Serilog;
-using SimpleInjector;
-using System;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using Xunit;
+using BFV.Components;
+using BFV.Components.Thermocouples;
+using BFV.Test.Components.TestComponents;
+using BFV.Common;
 
 namespace BFV.Test.Components {
-    public class EventTests {
+    public class PidTests {
+
         [Fact]
         public void CorrectPidAlertedWhenTemperatureChanges() {
-
             var container = ComponentRegistrator.ComponentRegistry()
                                                 .RegisterLogging()
                                                 .RegisterThermos<RandomFakedThermocouple>()
@@ -28,22 +25,8 @@ namespace BFV.Test.Components {
 
             Assert.True(correctPid.ThermocoupleStateChangeOccured);
             Assert.False(incorrectPid.ThermocoupleStateChangeOccured);
-        }
 
-
-        public class TestPid : Pid {
-
-            public bool ThermocoupleStateChangeOccured { get; set; }
-
-            public TestPid(ILogger logger) : base(logger) { }
-
-            public override void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
-                if (stateChange.Location == Location) {
-                    _logger.Debug($"ComponentStateChange<ThermocoupleState> Occurred.");
-                    ThermocoupleStateChangeOccured = true;
-                }
-            }
-
+            container.DeregisterAllComponents();
         }
 
     }

@@ -16,7 +16,7 @@ namespace BFV.Components.Thermocouples {
 
         public override void Refresh() {
             int integer = random.Next(-100, 100);
-            double fraction = integer / 100;
+            double fraction = (double)integer / (double)100;
 
             PriorState = CurrentState;
             CurrentState = new ThermocoupleState {

@@ -36,6 +36,19 @@ namespace BFV.Components {
             return container;
         }
 
+        public static Container DeregisterAllComponents(this Container container) {
+
+            
+            try {
+                var hub = container.GetInstance<Hub>(); 
+                hub.Unsubscribe();
+            } catch (Exception) { }
+
+            container.DeregisterAllComponents();
+
+            return container;
+        }
+
         public static Container RegisterLogging(this Container container) {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -66,10 +79,13 @@ namespace BFV.Components {
 
             container.Collection.Register<Thermocouple>(thermos);
 
-            foreach (var thermo in thermos)
+            foreach (var thermo in thermos) {
                 thermo.ComponentStateChangePublisher(Hub.Default.Publish<ComponentStateChange<ThermocoupleState>>);
 
-            // If in testMode, RandomFakedThermocouple should listen to PID changes
+                // For simulation purposes.
+                if (thermo is SsrAwareFakedThermocouple ssrAwareThermo)
+                    Hub.Default.Subscribe<ComponentStateChange<SsrState>>(ssrAwareThermo.ComponentStateChangeOccurred);
+            }
 
             return container;
         }
