@@ -12,7 +12,7 @@ namespace BFV.Components {
                        IComponentStateChangePublisher<PidState>,
                        IComponentStateChangeSubscriber<ThermocoupleState> {
 
-        private readonly ILogger _logger;
+        protected readonly ILogger _logger;
 
         private Action<ComponentStateChange<PidState>> _publishPidStateChange;
 

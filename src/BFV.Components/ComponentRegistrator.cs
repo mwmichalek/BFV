@@ -21,6 +21,22 @@ namespace BFV.Components {
 
         public static Container RegisterAllComponents(this Container container) {
 
+            container.RegisterLogging();
+
+            container.Register<Hub>(() => Hub.Default);
+
+            container.RegisterThermos();
+
+            container.RegisterPids();
+
+            container.RegisterSsrs();
+
+            container.RegisterDisplay();
+
+            return container;
+        }
+
+        public static Container RegisterLogging(this Container container) {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .Enrich.FromLogContext()
@@ -29,14 +45,6 @@ namespace BFV.Components {
 
             container.Options.DependencyInjectionBehavior = new SerilogContextualLoggerInjectionBehavior(container.Options);
             container.Register<ILogger>(() => Log.Logger);
-
-            container.Register<Hub>(() => Hub.Default);
-
-            container.RegisterThermos();
-
-            container.RegisterPids();
-
-            container.RegisterDisplay();
 
             return container;
         }
@@ -86,6 +94,30 @@ namespace BFV.Components {
             foreach (var pid in pids) {
                 Hub.Default.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
                 pid.ComponentStateChangePublisher(Hub.Default.Publish<ComponentStateChange<PidState>>);
+            }
+
+            return container;
+        }
+
+        public static Container RegisterSsrs<TSsr>(this Container container) where TSsr : Ssr {
+            List<Ssr> ssrs = LocationHelper.SsrLocations.Select(l => {
+                TSsr ssr = (TSsr)Activator.CreateInstance(typeof(TSsr), new object[] { Log.Logger });
+                ssr.Location = l;
+                return ssr;
+            }).ToList<Ssr>();
+
+            return container.RegisterSsrs(ssrs);
+        }
+
+        public static Container RegisterSsrs(this Container container, List<Ssr> preexistingSsrs = null) {
+            List<Ssr> ssrs = (preexistingSsrs == null) ?
+                LocationHelper.SsrLocations.Select(l => new Ssr(Log.Logger) { Location = l }).ToList() :
+                preexistingSsrs;
+            container.Collection.Register<Ssr>(ssrs);
+
+            foreach (var ssr in ssrs) {
+                Hub.Default.Subscribe<ComponentStateChange<PidState>>(ssr.ComponentStateChangeOccurred);
+                ssr.ComponentStateChangePublisher(Hub.Default.Publish<ComponentStateChange<SsrState>>);
             }
 
             return container;

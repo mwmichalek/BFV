@@ -16,6 +16,7 @@ namespace BFV.Test.Components {
         public void CorrectPidAlertedWhenTemperatureChanges() {
 
             var container = ComponentRegistrator.ComponentRegistry()
+                                                .RegisterLogging()
                                                 .RegisterThermos<RandomFakedThermocouple>()
                                                 .RegisterPids<TestPid>();
 
@@ -37,8 +38,10 @@ namespace BFV.Test.Components {
             public TestPid(ILogger logger) : base(logger) { }
 
             public override void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
-                if (stateChange.Location == Location)
+                if (stateChange.Location == Location) {
+                    _logger.Debug($"ComponentStateChange<ThermocoupleState> Occurred.");
                     ThermocoupleStateChangeOccured = true;
+                }
             }
 
         }
