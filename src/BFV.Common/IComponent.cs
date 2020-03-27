@@ -24,9 +24,13 @@ namespace BFV.Common {
 
     public abstract class StateComponent<TState> : IComponent where TState : IComponentState {
 
+        public StateComponent() {
+  
+        }
+
         public TState PriorState { get; set; }
 
-        public TState CurrentState { get; set; }
+        public TState CurrentState { get; set; } = Activator.CreateInstance<TState>();
 
         public ComponentStateChange<TState> ToComponentStateChange() {
             if (this is ILocatableComponent) {

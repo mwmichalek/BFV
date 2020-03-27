@@ -15,8 +15,6 @@ namespace BFV.Components.States {
             };
         }
 
-
-
         public override string ToString() {
             return $"Temperature: {Temperature} Time: {Timestamp.Second}:{Timestamp.Millisecond}";
         }

@@ -12,14 +12,19 @@ namespace BFV.Common.Events {
         public TState CurrentState { get; set; }
     }
 
+    /// <summary>
+    /// This probably won't work remotely, perhaps have different requests for remote that get converted to this.
+    /// </summary>
+    /// <typeparam name="TState"></typeparam>
     public class ComponentStateRequest<TState> where TState : IComponentState {
 
         public Location Location { get; set; }
 
-        public Action<TState> Update { get; set; }
+        public Action<TState> Updates { get; set; }
 
-        public TState UpdatedState(TState initialState) {
-            Update(initialState);
+        public TState UpdateState(TState initialState) {
+            Updates(initialState);
+            initialState.Timestamp = DateTime.Now;
             return initialState;
         }
 

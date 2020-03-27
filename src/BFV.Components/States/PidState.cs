@@ -7,6 +7,8 @@ using System.Text;
 namespace BFV.Components.States {
     public class PidState : ComponentState<PidState> {
 
+        public bool IsEngaged { get; set; } = false;
+
         public PidMode PidMode { get; set; } = PidMode.Temperature;
 
         public double SetPoint { get; set; } = double.MinValue;
@@ -24,7 +26,16 @@ namespace BFV.Components.States {
         }
 
         public override PidState Clone() {
-            throw new NotImplementedException();
+            return new PidState {
+                IsEngaged = IsEngaged,
+                PidMode = PidMode,
+                SetPoint = SetPoint,
+                Temperature = Temperature,
+                GainProportional = GainProportional,
+                GainIntegral = GainIntegral,
+                GainDerivative = GainDerivative
+            };
         }
+
     }
 }

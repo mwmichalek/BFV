@@ -24,7 +24,6 @@ namespace BFV.Components.Thermocouples {
             };
 
             _publishThermocoupleStateChange(this.ToComponentStateChange());
-
         }
     }
 }

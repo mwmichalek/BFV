@@ -38,13 +38,11 @@ namespace BFV.Components {
 
         public static Container DeregisterAllComponents(this Container container) {
 
-            
-            try {
-                var hub = container.GetInstance<Hub>(); 
-                hub.Unsubscribe();
-            } catch (Exception) { }
+            //try {
+            //    Hub.Default.Unsubscribe();
+            //} catch (Exception) { }
 
-            container.DeregisterAllComponents();
+            //container.DeregisterAllComponents();
 
             return container;
         }
@@ -109,6 +107,7 @@ namespace BFV.Components {
 
             foreach (var pid in pids) {
                 Hub.Default.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
+                Hub.Default.Subscribe<ComponentStateRequest<PidState>>(pid.ComponentStateRequestOccurred);
                 pid.ComponentStateChangePublisher(Hub.Default.Publish<ComponentStateChange<PidState>>);
             }
 

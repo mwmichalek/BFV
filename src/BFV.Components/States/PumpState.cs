@@ -5,8 +5,14 @@ using System.Text;
 
 namespace BFV.Components.States {
     public class PumpState : ComponentState<PumpState> {
+
+        public bool IsEngaged { get; set; } = false;
+
         public override PumpState Clone() {
-            throw new NotImplementedException();
+            return new PumpState {
+                IsEngaged = IsEngaged
+            };
         }
+
     }
 }

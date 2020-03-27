@@ -10,6 +10,7 @@ namespace BFV.Components {
     public class Pid : StateComponent<PidState>, 
                        ILocatableComponent, 
                        IComponentStateChangePublisher<PidState>,
+                       IComponentStateRequestSubscriber<PidState>,
                        IComponentStateChangeSubscriber<ThermocoupleState> {
 
         protected readonly ILogger _logger;
@@ -32,6 +33,10 @@ namespace BFV.Components {
             _publishPidStateChange = publishStateChange;
         }
 
+        public virtual void ComponentStateRequestOccurred(ComponentStateRequest<PidState> stateRequest) {
+            PriorState = CurrentState;
+            CurrentState = stateRequest.UpdateState(CurrentState);
+        }
     }
 
     public enum PidMode {

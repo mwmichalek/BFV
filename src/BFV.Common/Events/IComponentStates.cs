@@ -5,6 +5,8 @@ using System.Text;
 namespace BFV.Common.Events {
 
     public interface IComponentState {
+
+        DateTime Timestamp { get; set; }
     }
 
     public abstract class ComponentState<TSubclass> : IComponentState where TSubclass : IComponentState {
@@ -14,16 +16,5 @@ namespace BFV.Common.Events {
         public abstract TSubclass Clone();
 
     }
-
-    //public interface IComponentRequestedState {
-    //}
-
-    //public abstract class ComponentRequestedState<TSubclass> : IComponentState where TSubclass : IComponentState {
-
-    //    public DateTime Timestamp { get; set; } = DateTime.Now;
-
-    //    public abstract TSubclass Clone();
-
-    //}
 
 }

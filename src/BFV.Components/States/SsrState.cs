@@ -14,9 +14,12 @@ namespace BFV.Components.States {
             return $"SSR - %: {Percentage} IsFiring: {IsFiring}, Time: {Timestamp.Second}:{Timestamp.Millisecond}";
         }
 
-
         public override SsrState Clone() {
-            throw new NotImplementedException();
+            return new SsrState {
+                Percentage = Percentage,
+                IsFiring = IsFiring
+            };
         }
+
     }
 }
