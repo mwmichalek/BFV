@@ -10,4 +10,10 @@ namespace BFV.Common {
         void ComponentStateChangePublisher(Action<ComponentStateChange<T>> publishStateChange);
 
     }
+
+    public interface IComponentStateRequestPublisher<T> where T : IComponentState {
+
+        void ComponentStateRequestPublisher(Action<ComponentStateRequest<T>> publishStateRequest);
+
+    }
 }

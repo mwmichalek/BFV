@@ -10,4 +10,10 @@ namespace BFV.Common.Events {
         void ComponentStateChangeOccurred(ComponentStateChange<T> stateChange);
 
     }
+
+    public interface IComponentStateRequestSubscriber<T> where T : IComponentState {
+
+        void ComponentStateRequestOccurred(ComponentStateRequest<T> stateRequest);
+
+    }
 }
