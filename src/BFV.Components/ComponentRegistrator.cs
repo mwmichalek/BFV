@@ -15,15 +15,29 @@ using BFV.Common.Events;
 namespace BFV.Components {
     public static class ComponentRegistrator {
 
+        private static List<IComponent> components = new List<IComponent>();
+
+        public static Hub hub;
+
         public static Container ComponentRegistry() {
-            return new Container();
+            return new Container(); 
+        }
+
+        private static Hub RegisterHub(this Container container) {
+            if (hub == null) {
+                hub = new Hub();
+                container.RegisterSingleton<Hub>(() => {
+                    return hub;
+                });
+            }
+            return hub;
         }
 
         public static Container RegisterAllComponents(this Container container) {
 
             container.RegisterLogging();
 
-            container.Register<Hub>(() => Hub.Default);
+            //container.Register<Hub>(() => hub, Lifestyle.Singleton);
 
             container.RegisterThermos();
 
@@ -32,17 +46,6 @@ namespace BFV.Components {
             container.RegisterSsrs();
 
             container.RegisterDisplay();
-
-            return container;
-        }
-
-        public static Container DeregisterAllComponents(this Container container) {
-
-            //try {
-            //    Hub.Default.Unsubscribe();
-            //} catch (Exception) { }
-
-            //container.DeregisterAllComponents();
 
             return container;
         }
@@ -78,11 +81,11 @@ namespace BFV.Components {
             container.Collection.Register<Thermocouple>(thermos);
 
             foreach (var thermo in thermos) {
-                thermo.ComponentStateChangePublisher(Hub.Default.Publish<ComponentStateChange<ThermocoupleState>>);
+                thermo.ComponentStateChangePublisher(container.RegisterHub().Publish<ComponentStateChange<ThermocoupleState>>);
 
                 // For simulation purposes.
                 if (thermo is SsrAwareFakedThermocouple ssrAwareThermo)
-                    Hub.Default.Subscribe<ComponentStateChange<SsrState>>(ssrAwareThermo.ComponentStateChangeOccurred);
+                    container.RegisterHub().Subscribe<ComponentStateChange<SsrState>>(ssrAwareThermo.ComponentStateChangeOccurred);
             }
 
             return container;
@@ -106,9 +109,9 @@ namespace BFV.Components {
             container.Collection.Register<Pid>(pids);
 
             foreach (var pid in pids) {
-                Hub.Default.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
-                Hub.Default.Subscribe<ComponentStateRequest<PidState>>(pid.ComponentStateRequestOccurred);
-                pid.ComponentStateChangePublisher(Hub.Default.Publish<ComponentStateChange<PidState>>);
+                container.RegisterHub().Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
+                container.RegisterHub().Subscribe<ComponentStateRequest<PidState>>(pid.ComponentStateRequestOccurred);
+                pid.ComponentStateChangePublisher(container.RegisterHub().Publish<ComponentStateChange<PidState>>);
             }
 
             return container;
@@ -131,8 +134,8 @@ namespace BFV.Components {
             container.Collection.Register<Ssr>(ssrs);
 
             foreach (var ssr in ssrs) {
-                Hub.Default.Subscribe<ComponentStateChange<PidState>>(ssr.ComponentStateChangeOccurred);
-                ssr.ComponentStateChangePublisher(Hub.Default.Publish<ComponentStateChange<SsrState>>);
+                container.RegisterHub().Subscribe<ComponentStateChange<PidState>>(ssr.ComponentStateChangeOccurred);
+                ssr.ComponentStateChangePublisher(container.RegisterHub().Publish<ComponentStateChange<SsrState>>);
             }
 
             return container;
@@ -143,8 +146,8 @@ namespace BFV.Components {
             var display = new LcdDisplay(Log.Logger);
             container.Register<LcdDisplay>(() => display);
 
-            Hub.Default.Subscribe<ComponentStateChange<ThermocoupleState>>(display.ComponentStateChangeOccurred);
-            Hub.Default.Subscribe<ComponentStateChange<PidState>>(display.ComponentStateChangeOccurred);
+            container.RegisterHub().Subscribe<ComponentStateChange<ThermocoupleState>>(display.ComponentStateChangeOccurred);
+            container.RegisterHub().Subscribe<ComponentStateChange<PidState>>(display.ComponentStateChangeOccurred);
 
             return container;
         }

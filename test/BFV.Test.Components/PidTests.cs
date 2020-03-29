@@ -15,45 +15,48 @@ namespace BFV.Test.Components {
 
         [Fact]
         public void CorrectPidAlertedWhenTemperatureChanges() {
-            var container = ComponentRegistrator.ComponentRegistry()
+            using (var container = ComponentRegistrator.ComponentRegistry()
                                                 .RegisterLogging()
                                                 .RegisterThermos<RandomFakedThermocouple>()
-                                                .RegisterPids<TestPid>();
+                                                .RegisterPids<TestPid>()) {
 
-            var thermo = container.GetInstance<Thermocouple>(Location.HLT);
-            TestPid correctPid = (TestPid)container.GetInstance<Pid>(Location.HLT);
-            TestPid incorrectPid = (TestPid)container.GetInstance<Pid>(Location.BK);
+                var thermo = container.GetInstance<Thermocouple>(Location.HLT);
+                TestPid correctPid = (TestPid)container.GetInstance<Pid>(Location.HLT);
+                TestPid incorrectPid = (TestPid)container.GetInstance<Pid>(Location.BK);
 
-            thermo.Refresh();
+                thermo.Refresh();
 
-            Assert.True(correctPid.ThermocoupleStateChangeOccured);
-            Assert.False(incorrectPid.ThermocoupleStateChangeOccured);
+                Assert.True(correctPid.ThermocoupleStateChangeOccured);
+                Assert.False(incorrectPid.ThermocoupleStateChangeOccured);
 
-            container.DeregisterAllComponents();
+            }
         }
 
         [Fact]
         public void SendPidUpdate() {
-            var container = ComponentRegistrator.ComponentRegistry()
+            using (var container = ComponentRegistrator.ComponentRegistry()
                                                 .RegisterLogging()
                                                 //.RegisterThermos<RandomFakedThermocouple>()
-                                                .RegisterPids<TestPid>();
+                                                .RegisterPids<TestPid>()) {
 
-            TestPid pid = (TestPid)container.GetInstance<Pid>(Location.HLT);
+                TestPid pid = (TestPid)container.GetInstance<Pid>(Location.HLT);
 
-            var targetTemperature = 99;
 
-            var pidUpdateRequest = new ComponentStateRequest<PidState> {
-                Updates = (initialState) => {
-                    initialState.Temperature = targetTemperature;
-                }
+                var targetTemperature = 99;
+
+                var pidUpdateRequest = new ComponentStateRequest<PidState> {
+                    Updates = (initialState) => {
+                        initialState.Temperature = targetTemperature;
+                    }
+                };
+
+                var hub = container.GetInstance<Hub>();
+                Assert.True(hub.Exists<ComponentStateRequest<PidState>>());
+
+                hub.Publish<ComponentStateRequest<PidState>>(pidUpdateRequest);
+
+                Assert.Equal(targetTemperature, pid.CurrentState.Temperature);
             };
-
-            Hub.Default.Publish<ComponentStateRequest<PidState>>(pidUpdateRequest);
-
-            Assert.Equal(targetTemperature, pid.CurrentState.Temperature);
-
-            container.DeregisterAllComponents();
         }
 
     }

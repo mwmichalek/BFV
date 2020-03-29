@@ -6,11 +6,9 @@ using System.Text;
 namespace BFV.Common {
     public interface IComponent {
 
-        
-
     }
 
-    public interface IRefreshableComponent {
+    public interface IRefreshableComponent : IComponent {
 
         void Refresh();
 
