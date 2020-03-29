@@ -10,6 +10,7 @@ namespace BFV.Common.Events {
         public TState PriorState { get; set; }
 
         public TState CurrentState { get; set; }
+
     }
 
     /// <summary>

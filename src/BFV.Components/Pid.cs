@@ -108,11 +108,7 @@ namespace BFV.Components {
                     }
                 }
 
-                _publishPidStateChanged(new ComponentStateChange<PidState> {
-                    Location = Location,
-                    PriorState = PriorState,
-                    CurrentState = CurrentState
-                });
+                _publishPidStateChanged(CreateComponentStateChange());
 
                 Refresh();
             }

@@ -12,7 +12,7 @@ namespace BFV.Components {
     public class Ssr : StateComponent<SsrState>,
                        ILocatableComponent,
                        IComponentStateChangePublisher<SsrState>,
-                       IComponentStateChangeSubscriber<PidState> {
+                       IComponentStateRequestSubscriber<SsrState> {
 
         private Dictionary<Location, int> _pinLookup = new Dictionary<Location, int> {
             { Location.HLT, 23 },
@@ -49,26 +49,16 @@ namespace BFV.Components {
 
         public Location Location { get; set; }
 
-        public void ComponentStateChangeOccurred(ComponentStateChange<PidState> stateChange) {
-            if (stateChange.Location == Location) {
-                //CurrentState.IsDifferent(ssrStateRequest.RequestState)) {
+        public void ComponentStateRequestOccurred(ComponentStateRequest<SsrState> stateRequest) {
+            if (stateRequest.Location == Location) {
+                PriorState = CurrentState;
+                CurrentState = stateRequest.UpdateState(CurrentState.Clone());
 
-                //    var stopIt = ssrStateRequest.RequestState.Percentage == 0 && CurrentState.IsEngaged;
-                //    var startIt = ssrStateRequest.RequestState.Percentage > 0 && !CurrentState.IsEngaged;
+                if (PriorState.Percentage != CurrentState.Percentage) CalculateDurations();
+                if (!PriorState.IsEngaged && CurrentState.IsEngaged) Start();
+                if (PriorState.IsEngaged && !CurrentState.IsEngaged) Stop();
 
-                //    if (stopIt || startIt) {
-                //        PriorState = CurrentState;
-                //        CurrentState = CurrentState.UpdateRequest(ssrStateRequest.RequestState);
-                //        CalculateDurations();
-                //    }
-
-                //    if (startIt) Start();
-                //    if (stopIt) Stop();
-
-                //    if (stopIt || startIt)
-                //        SendNotification();
-                //    else
-                //        ProposedState = CurrentState.UpdateRequest(ssrStateRequest.RequestState);
+                _publishSsrStateChanged(CreateComponentStateChange());
             }
         }
 
@@ -76,23 +66,25 @@ namespace BFV.Components {
             _publishSsrStateChanged = publishStateChange;
         }
 
-        //private void CalculateDurations() {
-        //    // Calculate On and Off durations
-        //    decimal fraction = ((decimal)CurrentState.Percentage / 100.0m);
-        //    _millisOn = (int)(fraction * (decimal)_dutyCycleInMillis);
-        //    _millisOff = _dutyCycleInMillis - _millisOn;
-        //    //Logger.LogInformation($"SSR: {Id} - CALC PERC {CurrentState.Percentage}, FRACTION {fraction}, MILLISON {_millisOn}, MILLISOFF {_millisOff}");
-        //}
+        private void CalculateDurations() {
+            // Calculate On and Off durations
 
-        //private void Start() {
-        //    CurrentState = CurrentState.Engage(true);
-        //    Task.Run(() => Run());
-        //}
+            decimal fraction = ((decimal)CurrentState.Percentage / 100.0m);
+            _millisOn = (int)(fraction * (decimal)_dutyCycleInMillis);
+            _millisOff = _dutyCycleInMillis - _millisOn;
 
-        //private void Stop() {
-        //    CurrentState = CurrentState.Engage(false);
-        //    ProposedState = null;
-        //}
+            //Logger.LogInformation($"SSR: {Id} - CALC PERC {CurrentState.Percentage}, FRACTION {fraction}, MILLISON {_millisOn}, MILLISOFF {_millisOff}");
+        }
+
+        private void Start() {
+            //CurrentState = CurrentState.Engage(true);
+            //Task.Run(() => Run());
+        }
+
+        private void Stop() {
+            //CurrentState = CurrentState.Engage(false);
+            //ProposedState = null;
+        }
 
         //private void Run() {
         //    while (CurrentState.IsEngaged) {
@@ -120,9 +112,9 @@ namespace BFV.Components {
         //private void On() {
         //    if (!CurrentState.IsFiring) {
         //        //Logger.LogInformation($"SSR: {Id} - ON {_millisOn}");
-                
+
         //        //_pin?.Write(GpioPinValue.High);
-                
+
         //        PriorState = CurrentState;
         //        CurrentState = CurrentState.Fire(true);
         //        CurrentState.IsFiring = true;
@@ -139,7 +131,7 @@ namespace BFV.Components {
 
         //        PriorState = CurrentState;
         //        CurrentState = CurrentState.Fire(false);
-                
+
         //        //SendNotification();
         //    }
         //}

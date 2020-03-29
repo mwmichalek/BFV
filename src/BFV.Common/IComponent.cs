@@ -30,7 +30,7 @@ namespace BFV.Common {
 
         public TState CurrentState { get; set; } = Activator.CreateInstance<TState>();
 
-        public ComponentStateChange<TState> ToComponentStateChange() {
+        public ComponentStateChange<TState> CreateComponentStateChange() {
             if (this is ILocatableComponent) {
                 return new ComponentStateChange<TState> {
                     Location = ((ILocatableComponent)this).Location,

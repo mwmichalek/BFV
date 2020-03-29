@@ -23,7 +23,7 @@ namespace BFV.Components.Thermocouples {
                 Temperature = PriorState.Temperature + fraction
             };
 
-            _publishThermocoupleStateChange(this.ToComponentStateChange());
+            _publishThermocoupleStateChange(this.CreateComponentStateChange());
         }
     }
 }
