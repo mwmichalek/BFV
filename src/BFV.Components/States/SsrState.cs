@@ -6,6 +6,8 @@ using System.Text;
 namespace BFV.Components.States {
     public class SsrState : ComponentState<SsrState> {
 
+        public bool IsEngaged { get; set; } = false;
+
         public int Percentage { get; set; } = 0;
 
         public bool IsFiring { get; set; } = false;
