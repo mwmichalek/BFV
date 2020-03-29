@@ -116,6 +116,7 @@ namespace BFV.Components {
                     hubbedContainer.Hub.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
                     hubbedContainer.Hub.Subscribe<ComponentStateRequest<PidState>>(pid.ComponentStateRequestOccurred);
                     pid.ComponentStateChangePublisher(hubbedContainer.Hub.Publish<ComponentStateChange<PidState>>);
+                    pid.ComponentStateRequestPublisher(hubbedContainer.Hub.Publish<ComponentStateRequest<PidState>>);
                 }
             }
 

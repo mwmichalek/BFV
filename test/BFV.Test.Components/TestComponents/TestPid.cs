@@ -13,9 +13,15 @@ namespace BFV.Test.Components.TestComponents {
 
         public ComponentStateChange<ThermocoupleState> LastThermocoupleStateChange { get; set; }
 
+        public bool PidStateRequestOccured { get; set; }
+
+        public ComponentStateRequest<PidState> LastPidStateRequest { get; set; }
+
         public TestPid(ILogger logger) : base(logger) { }
 
         public override void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
+            base.ComponentStateChangeOccurred(stateChange);
+
             if (stateChange.Location == Location) {
                 _logger.Debug($"ComponentStateChange<ThermocoupleState> Occurred.");
                 ThermocoupleStateChangeOccured = true;
@@ -23,5 +29,15 @@ namespace BFV.Test.Components.TestComponents {
             }
         }
 
+        public override void ComponentStateRequestOccurred(ComponentStateRequest<PidState> stateRequest) {
+            base.ComponentStateRequestOccurred(stateRequest);
+
+            if (stateRequest.Location == Location) {
+                _logger.Debug($"ComponentStateRequest<PidState> Occurred.");
+                PidStateRequestOccured = true;
+                LastPidStateRequest = stateRequest;
+            }
+
+        }
     }
 }
