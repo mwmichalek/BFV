@@ -37,7 +37,7 @@ namespace BFV.Test.Components {
         }
 
         [Fact]
-        public void SendPidTemperatureUpdate() {
+        public void PidTemperatureUpdatesWithRequest() {
             using (var container = ComponentRegistrator.ComponentRegistry()
                                                        .RegisterPids<TestPid>()) {
 
@@ -71,7 +71,7 @@ namespace BFV.Test.Components {
         }
 
         [Fact]
-        public void SendPidEnableUpdate() {
+        public void PidEnableUpdatesWithReqest() {
             using (var container = ComponentRegistrator.ComponentRegistry()
                                                        .RegisterPids<TestPid>()) {
 
@@ -100,6 +100,38 @@ namespace BFV.Test.Components {
                 Assert.False(disablePidMT.CurrentState.IsEngaged, "MT failed to disable");
                 Assert.False(disablePidBK.CurrentState.IsEngaged, "BK should not be enabled");
             };
+        }
+
+
+        //TODO: Test PID for updates after temperature change
+
+        //TODO: Test PID for updates after PID change
+
+
+
+        [Fact]
+        public void PidSendSsrRequestWithTemperatureUpdate() {
+            //using (var container = ComponentRegistrator.ComponentRegistry()
+            //                                           .RegisterPids<TestPid>()) {
+
+            //    TestPid enablePid = (TestPid)container.GetInstance<Pid>(Location.HLT);
+
+
+            //    var pidUpdateRequest = new ComponentStateRequest<PidState> {
+            //        Location = Location.HLT,
+            //        Updates = (initialState) => {
+            //            initialState.IsEngaged = true;
+            //        }
+            //    };
+
+            //    var hub = container.GetInstance<Hub>();
+            //    Assert.True(hub.Exists<ComponentStateRequest<PidState>>(),
+            //                "Hub is missing subscriptions for ComponentStateRequest<PidState>");
+
+            //    hub.Publish<ComponentStateRequest<PidState>>(pidUpdateRequest);
+
+
+            //};
         }
 
     }

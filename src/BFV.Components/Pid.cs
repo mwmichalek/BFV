@@ -14,7 +14,8 @@ namespace BFV.Components {
                        IComponentStateChangePublisher<PidState>,
                        IComponentStateRequestSubscriber<PidState>,
                        IComponentStateRequestPublisher<PidState>,
-                       IComponentStateChangeSubscriber<ThermocoupleState> {
+                       IComponentStateChangeSubscriber<ThermocoupleState>,
+                       IComponentStateRequestPublisher<SsrState> {
 
         public Location Location { get; set; }
 
@@ -24,62 +25,62 @@ namespace BFV.Components {
 
         private Action<ComponentStateRequest<PidState>> _publishPidDisengageRequest;
 
-        private DateTime lastRun;
+        private Action<ComponentStateRequest<SsrState>> _publishSsrRequest;
 
-        private bool isRunning = false;
+        private DateTime _lastRun;
 
-        private int dutyCycleInMillis = 2000;
+        private bool _isRunning = false;
 
-        private int percentage = 0;
+        private int _dutyCycleInMillis = 2000;
+
+        private int _percentage = 0;
 
         public Pid(ILogger logger) {
             _logger = logger;
         }
 
-        public void Refresh() {
-            //TODO: Update PID Refresh
-
-            //if (!CurrentState.IsEngaged)
-            //    UpdateSsr(0, "Pid Disengaged");
-
-            //if (CurrentState.IsEngaged) {
-            //    if (CurrentState.PidMode == PidMode.Temperature && CurrentState.Temperature != double.MinValue) {
-            //        var currentTime = DateTime.Now;
-            //        if (lastRun == null)
-            //            lastRun = currentTime;
-
-
-            //        var secondsSinceLastUpdate = (currentTime - lastRun).Seconds;
-            //        if (secondsSinceLastUpdate == 0) secondsSinceLastUpdate = 1;
-
-            //        double error = CurrentState.SetPoint - CurrentState.Temperature;
-
-            //        // integral term calculation
-            //        _integralTerm += (CurrentState.GainIntegral * error * secondsSinceLastUpdate);
-            //        _integralTerm = Clamp(_integralTerm);
-
-            //        // derivative term calculation
-            //        double dInput = CurrentState.Temperature - PriorState.Temperature;
-            //        double derivativeTerm = CurrentState.GainDerivative * (dInput / secondsSinceLastUpdate);
-
-            //        // proportional term calcullation
-            //        double proportionalTerm = CurrentState.GainProportional * error;
-
-            //        double output = proportionalTerm + _integralTerm - derivativeTerm;
-            //        output = Clamp(output);
-
-            //        lastRun = currentTime;
-
-            //        UpdateSsr((int)output);
-
-            //    } else if (CurrentState.PidMode == PidMode.Percentage) {
-            //        // If PidMode is Percentage, SetPoint is a Percentage
-            //        UpdateSsr((int)CurrentState.SetPoint, "Percentage");
-            //    }
-            //}
-        }
-
         
+
+        public void Refresh() {
+            if (PriorState.IsEngaged && !CurrentState.IsEngaged)
+                UpdateSsr(0);
+
+            if (CurrentState.IsEngaged) {
+                if (CurrentState.PidMode == PidMode.Temperature && CurrentState.Temperature != double.MinValue) {
+                    var currentTime = DateTime.Now;
+                    if (_lastRun == null)
+                        _lastRun = currentTime;
+
+
+                    var secondsSinceLastUpdate = (currentTime - _lastRun).Seconds;
+                    if (secondsSinceLastUpdate == 0) secondsSinceLastUpdate = 1;
+
+                    double error = CurrentState.SetPoint - CurrentState.Temperature;
+
+                    // integral term calculation
+                    _integralTerm += (CurrentState.GainIntegral * error * secondsSinceLastUpdate);
+                    _integralTerm = Clamp(_integralTerm);
+
+                    // derivative term calculation
+                    double dInput = CurrentState.Temperature - PriorState.Temperature;
+                    double derivativeTerm = CurrentState.GainDerivative * (dInput / secondsSinceLastUpdate);
+
+                    // proportional term calcullation
+                    double proportionalTerm = CurrentState.GainProportional * error;
+
+                    double output = proportionalTerm + _integralTerm - derivativeTerm;
+                    output = Clamp(output);
+
+                    _lastRun = currentTime;
+
+                    UpdateSsr((int)output);
+
+                } else if (CurrentState.PidMode == PidMode.Percentage) {
+                    // If PidMode is Percentage, SetPoint is a Percentage
+                    UpdateSsr((int)CurrentState.SetPoint);
+                }
+            }
+        }
 
         public virtual void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
             if (stateChange.Location == Location) {
@@ -114,12 +115,25 @@ namespace BFV.Components {
             }
         }
 
+        private void UpdateSsr(int percentage) {
+            _publishSsrRequest(new ComponentStateRequest<SsrState> {
+                Location = Location,
+                Updates = (state) => {
+                    state.Percentage = percentage;
+                }
+            });
+        }
+
         public virtual void ComponentStateChangePublisher(Action<ComponentStateChange<PidState>> publishStateChange) {
             _publishPidStateChanged = publishStateChange;
         }
 
         public virtual void ComponentStateRequestPublisher(Action<ComponentStateRequest<PidState>> publishStateRequest) {
             _publishPidDisengageRequest = publishStateRequest;
+        }
+
+        public void ComponentStateRequestPublisher(Action<ComponentStateRequest<SsrState>> publishStateRequest) {
+            _publishSsrRequest = publishStateRequest;
         }
 
 

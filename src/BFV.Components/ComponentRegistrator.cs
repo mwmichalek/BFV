@@ -141,7 +141,7 @@ namespace BFV.Components {
 
             if (container is HubbedContainer hubbedContainer) {
                 foreach (var ssr in ssrs) {
-                    hubbedContainer.Hub.Subscribe<ComponentStateChange<PidState>>(ssr.ComponentStateChangeOccurred);
+                    hubbedContainer.Hub.Subscribe<ComponentStateRequest<SsrState>>(ssr.ComponentStateRequestOccurred);
                     ssr.ComponentStateChangePublisher(hubbedContainer.Hub.Publish<ComponentStateChange<SsrState>>);
                 }
             }
