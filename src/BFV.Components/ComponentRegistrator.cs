@@ -15,29 +15,22 @@ using BFV.Common.Events;
 namespace BFV.Components {
     public static class ComponentRegistrator {
 
-        private static List<IComponent> components = new List<IComponent>();
+        public class HubbedContainer : Container {
 
-        public static Hub hub;
+            public Hub Hub { get; set; } = new Hub();
 
-        public static Container ComponentRegistry() {
-            return new Container(); 
+            protected override void Dispose(bool disposing) {
+                //TODO: Hub Unsubscribe all components?
+                base.Dispose(disposing);
+            }
+
         }
 
-        private static Hub RegisterHub(this Container container) {
-            if (hub == null) {
-                hub = new Hub();
-                container.RegisterSingleton<Hub>(() => {
-                    return hub;
-                });
-            }
-            return hub;
+        public static Container ComponentRegistry() {
+            return new HubbedContainer().RegisterLogging().RegisterHub(); 
         }
 
         public static Container RegisterAllComponents(this Container container) {
-
-            container.RegisterLogging();
-
-            //container.Register<Hub>(() => hub, Lifestyle.Singleton);
 
             container.RegisterThermos();
 
@@ -63,6 +56,14 @@ namespace BFV.Components {
             return container;
         }
 
+        public static Container RegisterHub(this Container container) {
+
+            if (container is HubbedContainer hubbedContainer) 
+                container.RegisterSingleton<Hub>(() => { return hubbedContainer.Hub; });
+            
+            return container;
+        }
+
         public static Container RegisterThermos<TThermo>(this Container container) where TThermo : Thermocouple {
             List<Thermocouple> thermos = LocationHelper.AllLocations.Select(l => {
                 TThermo thermo = (TThermo)Activator.CreateInstance(typeof(TThermo), new object[] { Log.Logger });
@@ -80,12 +81,14 @@ namespace BFV.Components {
 
             container.Collection.Register<Thermocouple>(thermos);
 
-            foreach (var thermo in thermos) {
-                thermo.ComponentStateChangePublisher(container.RegisterHub().Publish<ComponentStateChange<ThermocoupleState>>);
+            if (container is HubbedContainer hubbedContainer) {
+                foreach (var thermo in thermos) {
+                    thermo.ComponentStateChangePublisher(hubbedContainer.Hub.Publish<ComponentStateChange<ThermocoupleState>>);
 
-                // For simulation purposes.
-                if (thermo is SsrAwareFakedThermocouple ssrAwareThermo)
-                    container.RegisterHub().Subscribe<ComponentStateChange<SsrState>>(ssrAwareThermo.ComponentStateChangeOccurred);
+                    // For simulation purposes.
+                    if (thermo is SsrAwareFakedThermocouple ssrAwareThermo)
+                        hubbedContainer.Hub.Subscribe<ComponentStateChange<SsrState>>(ssrAwareThermo.ComponentStateChangeOccurred);
+                }
             }
 
             return container;
@@ -108,10 +111,12 @@ namespace BFV.Components {
                 preexistingPids;
             container.Collection.Register<Pid>(pids);
 
-            foreach (var pid in pids) {
-                container.RegisterHub().Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
-                container.RegisterHub().Subscribe<ComponentStateRequest<PidState>>(pid.ComponentStateRequestOccurred);
-                pid.ComponentStateChangePublisher(container.RegisterHub().Publish<ComponentStateChange<PidState>>);
+            if (container is HubbedContainer hubbedContainer) {
+                foreach (var pid in pids) {
+                    hubbedContainer.Hub.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
+                    hubbedContainer.Hub.Subscribe<ComponentStateRequest<PidState>>(pid.ComponentStateRequestOccurred);
+                    pid.ComponentStateChangePublisher(hubbedContainer.Hub.Publish<ComponentStateChange<PidState>>);
+                }
             }
 
             return container;
@@ -133,9 +138,11 @@ namespace BFV.Components {
                 preexistingSsrs;
             container.Collection.Register<Ssr>(ssrs);
 
-            foreach (var ssr in ssrs) {
-                container.RegisterHub().Subscribe<ComponentStateChange<PidState>>(ssr.ComponentStateChangeOccurred);
-                ssr.ComponentStateChangePublisher(container.RegisterHub().Publish<ComponentStateChange<SsrState>>);
+            if (container is HubbedContainer hubbedContainer) {
+                foreach (var ssr in ssrs) {
+                    hubbedContainer.Hub.Subscribe<ComponentStateChange<PidState>>(ssr.ComponentStateChangeOccurred);
+                    ssr.ComponentStateChangePublisher(hubbedContainer.Hub.Publish<ComponentStateChange<SsrState>>);
+                }
             }
 
             return container;
@@ -146,8 +153,10 @@ namespace BFV.Components {
             var display = new LcdDisplay(Log.Logger);
             container.Register<LcdDisplay>(() => display);
 
-            container.RegisterHub().Subscribe<ComponentStateChange<ThermocoupleState>>(display.ComponentStateChangeOccurred);
-            container.RegisterHub().Subscribe<ComponentStateChange<PidState>>(display.ComponentStateChangeOccurred);
+            if (container is HubbedContainer hubbedContainer) {
+                hubbedContainer.Hub.Subscribe<ComponentStateChange<ThermocoupleState>>(display.ComponentStateChangeOccurred);
+                hubbedContainer.Hub.Subscribe<ComponentStateChange<PidState>>(display.ComponentStateChangeOccurred);
+            }
 
             return container;
         }

@@ -16,9 +16,8 @@ namespace BFV.Test.Components {
         [Fact]
         public void CorrectPidAlertedWhenTemperatureChanges() {
             using (var container = ComponentRegistrator.ComponentRegistry()
-                                                .RegisterLogging()
-                                                .RegisterThermos<RandomFakedThermocouple>()
-                                                .RegisterPids<TestPid>()) {
+                                                       .RegisterThermos<RandomFakedThermocouple>()
+                                                       .RegisterPids<TestPid>()) {
 
                 var thermo = container.GetInstance<Thermocouple>(Location.HLT);
                 TestPid correctPid = (TestPid)container.GetInstance<Pid>(Location.HLT);
@@ -35,9 +34,7 @@ namespace BFV.Test.Components {
         [Fact]
         public void SendPidUpdate() {
             using (var container = ComponentRegistrator.ComponentRegistry()
-                                                .RegisterLogging()
-                                                //.RegisterThermos<RandomFakedThermocouple>()
-                                                .RegisterPids<TestPid>()) {
+                                                       .RegisterPids<TestPid>()) {
 
                 TestPid pid = (TestPid)container.GetInstance<Pid>(Location.HLT);
 

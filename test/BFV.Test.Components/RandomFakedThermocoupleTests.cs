@@ -18,9 +18,8 @@ namespace BFV.Test.Components {
         public void TemperatureChangeOccursOnRefresh() {
 
             using (var container = ComponentRegistrator.ComponentRegistry()
-                                                .RegisterLogging()
-                                                .RegisterThermos<RandomFakedThermocouple>()
-                                                .RegisterPids<TestPid>()) {
+                                                       .RegisterThermos<RandomFakedThermocouple>()
+                                                       .RegisterPids<TestPid>()) {
 
                 var thermo = container.GetInstance<Thermocouple>(Location.HLT);
                 TestPid pid = (TestPid)container.GetInstance<Pid>(Location.HLT);
