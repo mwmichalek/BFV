@@ -108,7 +108,11 @@ namespace BFV.Components {
                     }
                 }
 
-                //TODO: Broadcast PID update 
+                _publishPidStateChanged(new ComponentStateChange<PidState> {
+                    Location = Location,
+                    PriorState = PriorState,
+                    CurrentState = CurrentState
+                });
 
                 Refresh();
             }
