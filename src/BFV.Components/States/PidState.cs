@@ -15,11 +15,11 @@ namespace BFV.Components.States {
 
         public double Temperature { get; set; } = double.MinValue;
 
-        public double GainProportional { get; set; } = 1;
+        public double GainProportional { get; set; } = 18;
 
-        public double GainIntegral { get; set; } = 1;
+        public double GainIntegral { get; set; } = 1.5;
 
-        public double GainDerivative { get; set; } = 1;
+        public double GainDerivative { get; set; } = 22.5;
 
         public override string ToString() {
             return $"PID - SetPoint: {SetPoint} Time: {Timestamp.Second}:{Timestamp.Millisecond}";

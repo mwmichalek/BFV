@@ -11,6 +11,7 @@ using System.Linq;
 using BFV.Components.States;
 using BFV.Components.Thermocouples;
 using BFV.Common.Events;
+using BFV.Components.Displays;
 
 namespace BFV.Components {
     public static class ComponentRegistrator {
@@ -38,12 +39,13 @@ namespace BFV.Components {
 
             container.RegisterSsrs();
 
-            container.RegisterDisplay();
+            container.RegisterDisplays();
 
             return container;
         }
 
         public static Container RegisterLogging(this Container container) {
+            //TODO: Fix logging to use Microsoft interfaces
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .Enrich.FromLogContext()
@@ -117,6 +119,7 @@ namespace BFV.Components {
                     hubbedContainer.Hub.Subscribe<ComponentStateRequest<PidState>>(pid.ComponentStateRequestOccurred);
                     pid.ComponentStateChangePublisher(hubbedContainer.Hub.Publish<ComponentStateChange<PidState>>);
                     pid.ComponentStateRequestPublisher(hubbedContainer.Hub.Publish<ComponentStateRequest<PidState>>);
+                    pid.ComponentStateRequestPublisher(hubbedContainer.Hub.Publish<ComponentStateRequest<SsrState>>);
                 }
             }
 
@@ -149,14 +152,34 @@ namespace BFV.Components {
             return container;
         }
 
-        public static Container RegisterDisplay(this Container container) {
+        //public static Container RegisterDisplays<TDisplay>(this Container container) where TDisplay : Display {
 
-            var display = new LcdDisplay(Log.Logger);
-            container.Register<LcdDisplay>(() => display);
+        //    var display = new LogDisplay(Log.Logger);
+        //    container.Register<Display>(() => display);
+
+        //    if (container is HubbedContainer hubbedContainer) {
+        //        hubbedContainer.Hub.Subscribe<ComponentStateChange<ThermocoupleState>>(display.ComponentStateChangeOccurred);
+        //        hubbedContainer.Hub.Subscribe<ComponentStateChange<PidState>>(display.ComponentStateChangeOccurred);
+        //    }
+
+        //    return container;
+        //}
+
+        public static Container RegisterDisplays(this Container container, List<Display> preexistingDisplays = null) {
+
+            List<Display> displays = (preexistingDisplays == null) ?
+                new List<Display> { new LogDisplay(Log.Logger) } :
+                preexistingDisplays;
+            container.Collection.Register<Display>(displays);
+
+            //var display = new LogDisplay(Log.Logger);
+            //container.Register<Display>(() => display);
 
             if (container is HubbedContainer hubbedContainer) {
-                hubbedContainer.Hub.Subscribe<ComponentStateChange<ThermocoupleState>>(display.ComponentStateChangeOccurred);
-                hubbedContainer.Hub.Subscribe<ComponentStateChange<PidState>>(display.ComponentStateChangeOccurred);
+                foreach (var display in displays) {
+                    hubbedContainer.Hub.Subscribe<ComponentStateChange<ThermocoupleState>>(display.ComponentStateChangeOccurred);
+                    hubbedContainer.Hub.Subscribe<ComponentStateChange<PidState>>(display.ComponentStateChangeOccurred);
+                }
             }
 
             return container;

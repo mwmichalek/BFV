@@ -6,14 +6,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BFV.Components {
-    public class LcdDisplay : IComponent, 
-                              IComponentStateChangeSubscriber<PidState>,
-                              IComponentStateChangeSubscriber<ThermocoupleState> {
+namespace BFV.Components.Displays {
+    public abstract class Display : IComponent, 
+                                    IComponentStateChangeSubscriber<PidState>,
+                                    IComponentStateChangeSubscriber<ThermocoupleState> {
 
         private readonly ILogger _logger;
 
-        public LcdDisplay(ILogger logger) {
+        public Display(ILogger logger) {
             _logger = logger;
         }
 

@@ -97,8 +97,7 @@ namespace BFV.Components {
                 PriorState = CurrentState;
                 CurrentState = stateRequest.UpdateState(CurrentState.Clone());
 
-                if (!PriorState.IsEngaged && CurrentState.IsEngaged) {
-
+                if (!PriorState.IsEngaged && CurrentState.IsEngaged && _publishPidDisengageRequest != null) {
                     foreach (var location in LocationHelper.PidLocations.Where(loc => loc != Location)) {
                         _publishPidDisengageRequest(new ComponentStateRequest<PidState> {
                             Location = location,
@@ -109,19 +108,23 @@ namespace BFV.Components {
                     }
                 }
 
-                _publishPidStateChanged(CreateComponentStateChange());
+                if (_publishPidStateChanged != null)
+                    _publishPidStateChanged(CreateComponentStateChange());
 
                 Refresh();
             }
         }
 
         private void UpdateSsr(int percentage) {
-            _publishSsrRequest(new ComponentStateRequest<SsrState> {
-                Location = Location,
-                Updates = (state) => {
-                    state.Percentage = percentage;
-                }
-            });
+            //TODO: Come up with eligant way of testing to see if a publisher is set.
+            if (_publishSsrRequest != null) {
+                _publishSsrRequest(new ComponentStateRequest<SsrState> {
+                    Location = Location,
+                    Updates = (state) => {
+                        state.Percentage = percentage;
+                    }
+                });
+            } 
         }
 
         public virtual void ComponentStateChangePublisher(Action<ComponentStateChange<PidState>> publishStateChange) {
@@ -170,8 +173,6 @@ namespace BFV.Components {
             if (variableToClamp >= _outputMax) { return _outputMax; }
             return variableToClamp;
         }
-
-        
     }
 
     public enum PidMode {

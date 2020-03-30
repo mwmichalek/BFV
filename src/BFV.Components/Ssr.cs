@@ -19,7 +19,7 @@ namespace BFV.Components {
             { Location.BK, 24 }
         };
 
-        private readonly ILogger _logger;
+        protected readonly ILogger _logger;
 
         private int _pinNumber { get; set; }
 
@@ -49,7 +49,7 @@ namespace BFV.Components {
 
         public Location Location { get; set; }
 
-        public void ComponentStateRequestOccurred(ComponentStateRequest<SsrState> stateRequest) {
+        public virtual void ComponentStateRequestOccurred(ComponentStateRequest<SsrState> stateRequest) {
             if (stateRequest.Location == Location) {
                 PriorState = CurrentState;
                 CurrentState = stateRequest.UpdateState(CurrentState.Clone());
@@ -62,7 +62,7 @@ namespace BFV.Components {
             }
         }
 
-        public void ComponentStateChangePublisher(Action<ComponentStateChange<SsrState>> publishStateChange) {
+        public virtual void ComponentStateChangePublisher(Action<ComponentStateChange<SsrState>> publishStateChange) {
             _publishSsrStateChanged = publishStateChange;
         }
 
