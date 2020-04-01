@@ -11,4 +11,8 @@
     <PackageReference Include="Serilog.Sinks.Trace" Version="2.1.0" />
     <PackageReference Include="SimpleInjector" Version="4.9.1" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BFV.Common\Common.csproj" />
+    <ProjectReference Include="..\BFV.Components\Components.csproj" />
+  </ItemGroup>
 </Project>

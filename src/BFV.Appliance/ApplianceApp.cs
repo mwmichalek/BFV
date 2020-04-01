@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using BFV.Components;
 using Meadow;
 using Meadow.Devices;
 using Meadow.Foundation;
@@ -15,6 +16,8 @@ namespace BFV.Appliance {
                        Device.Pins.OnboardLedRed,
                        Device.Pins.OnboardLedGreen,
                        Device.Pins.OnboardLedBlue);
+
+            var container = ComponentRegistrator.ComponentRegistry().RegisterAllComponents();
 
             PulseRgbPwmLed();
         }
