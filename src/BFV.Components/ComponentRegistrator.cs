@@ -89,7 +89,7 @@ namespace BFV.Components {
 
                     // For simulation purposes.
                     if (thermo is SsrAwareFakedThermocouple ssrAwareThermo)
-                        hubbedContainer.Hub.Subscribe<ComponentStateChange<SsrState>>(ssrAwareThermo.ComponentStateChangeOccurred);
+                        hubbedContainer.Hub.Subscribe<ComponentStateChange<SsrState>>((Action<ComponentStateChange<SsrState>>)ssrAwareThermo.ComponentStateChangeOccurred);
                 }
             }
 
@@ -115,8 +115,8 @@ namespace BFV.Components {
 
             if (container is HubbedContainer hubbedContainer) {
                 foreach (var pid in pids) {
-                    hubbedContainer.Hub.Subscribe<ComponentStateChange<ThermocoupleState>>(pid.ComponentStateChangeOccurred);
-                    hubbedContainer.Hub.Subscribe<ComponentStateRequest<PidState>>(pid.ComponentStateRequestOccurred);
+                    hubbedContainer.Hub.Subscribe<ComponentStateChange<ThermocoupleState>>((Action<ComponentStateChange<ThermocoupleState>>)pid.ComponentStateChangeOccurred);
+                    hubbedContainer.Hub.Subscribe<ComponentStateRequest<PidState>>((Action<ComponentStateRequest<PidState>>)pid.ComponentStateRequestOccurred);
                     pid.ComponentStateChangePublisher(hubbedContainer.Hub.Publish<ComponentStateChange<PidState>>);
                     pid.ComponentStateRequestPublisher(hubbedContainer.Hub.Publish<ComponentStateRequest<PidState>>);
                     pid.ComponentStateRequestPublisher(hubbedContainer.Hub.Publish<ComponentStateRequest<SsrState>>);
@@ -144,7 +144,7 @@ namespace BFV.Components {
 
             if (container is HubbedContainer hubbedContainer) {
                 foreach (var ssr in ssrs) {
-                    hubbedContainer.Hub.Subscribe<ComponentStateRequest<SsrState>>(ssr.ComponentStateRequestOccurred);
+                    hubbedContainer.Hub.Subscribe<ComponentStateRequest<SsrState>>((Action<ComponentStateRequest<SsrState>>)ssr.ComponentStateRequestOccurred);
                     ssr.ComponentStateChangePublisher(hubbedContainer.Hub.Publish<ComponentStateChange<SsrState>>);
                 }
             }
