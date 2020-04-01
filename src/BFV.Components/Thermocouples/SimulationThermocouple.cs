@@ -6,13 +6,15 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace BFV.Components.Thermocouples {
-    public class SsrAwareFakedThermocouple : Thermocouple,
-                                             IComponentStateChangeSubscriber<SsrState> {
+    public class SimulationThermocouple : Thermocouple,
+                                          IComponentStateChangeSubscriber<SsrState> {
 
         public double TemperatureChange { get; set; } = 0;
 
-        public SsrAwareFakedThermocouple(ILogger logger) : base(logger) {
+        public SimulationThermocouple(ILogger logger) : base(logger) {
             CurrentState = new ThermocoupleState { Temperature = 70 };
+
+            // Spawn thread
         }
 
         public void ComponentStateChangeOccurred(ComponentStateChange<SsrState> stateChange) {

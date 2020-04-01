@@ -31,6 +31,18 @@ namespace BFV.Components {
             return new HubbedContainer().RegisterLogging().RegisterHub(); 
         }
 
+        public static Container RegisterComponentsForSimulation(this Container container) {
+            container.RegisterThermos<SimulationThermocouple>();
+
+            container.RegisterPids();
+
+            container.RegisterSsrs();
+
+            container.RegisterDisplays();
+
+            return container;
+        }
+
         public static Container RegisterAllComponents(this Container container) {
 
             container.RegisterThermos();
@@ -88,7 +100,7 @@ namespace BFV.Components {
                     thermo.ComponentStateChangePublisher(hubbedContainer.Hub.Publish<ComponentStateChange<ThermocoupleState>>);
 
                     // For simulation purposes.
-                    if (thermo is SsrAwareFakedThermocouple ssrAwareThermo)
+                    if (thermo is SimulationThermocouple ssrAwareThermo)
                         hubbedContainer.Hub.Subscribe<ComponentStateChange<SsrState>>((Action<ComponentStateChange<SsrState>>)ssrAwareThermo.ComponentStateChangeOccurred);
                 }
             }
