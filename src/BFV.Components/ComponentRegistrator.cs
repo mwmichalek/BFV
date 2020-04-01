@@ -177,8 +177,8 @@ namespace BFV.Components {
 
             if (container is HubbedContainer hubbedContainer) {
                 foreach (var display in displays) {
-                    hubbedContainer.Hub.Subscribe<ComponentStateChange<ThermocoupleState>>(display.ComponentStateChangeOccurred);
-                    hubbedContainer.Hub.Subscribe<ComponentStateChange<PidState>>(display.ComponentStateChangeOccurred);
+                    hubbedContainer.Hub.Subscribe<ComponentStateChange<ThermocoupleState>>((Action<ComponentStateChange<ThermocoupleState>>)display.ComponentStateChangeOccurred);
+                    hubbedContainer.Hub.Subscribe<ComponentStateChange<PidState>>((Action<ComponentStateChange<PidState>>)display.ComponentStateChangeOccurred);
                 }
             }
 
