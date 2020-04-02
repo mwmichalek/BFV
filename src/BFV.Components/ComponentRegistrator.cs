@@ -43,6 +43,8 @@ namespace BFV.Components {
             return container;
         }
 
+        
+
         public static Container RegisterAllComponents(this Container container) {
 
             container.RegisterThermos();
@@ -192,6 +194,14 @@ namespace BFV.Components {
                     hubbedContainer.Hub.Subscribe<ComponentStateChange<ThermocoupleState>>((Action<ComponentStateChange<ThermocoupleState>>)display.ComponentStateChangeOccurred);
                     hubbedContainer.Hub.Subscribe<ComponentStateChange<PidState>>((Action<ComponentStateChange<PidState>>)display.ComponentStateChangeOccurred);
                 }
+            }
+
+            return container;
+        }
+
+        public static Container RefreshThermocouples(this Container container) {
+            foreach (var thermo in container.GetAllInstances<Thermocouple>()) {
+                thermo.Refresh();
             }
 
             return container;

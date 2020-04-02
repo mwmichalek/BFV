@@ -9,12 +9,17 @@ using BFV.Common;
 using BFV.Common.Events;
 using BFV.Components.States;
 using PubSub;
+using Moq;
+using System.Linq;
 
 namespace BFV.Test.Components {
     public class PidTests {
 
         [Fact]
         public void CorrectPidAlertedWhenTemperatureChanges() {
+
+            //var mockPids = LocationHelper.PidLocations.Select(l => new Mock<IPid>().SetupGet(x => x.Location).Returns(l));
+
             using (var container = ComponentRegistrator.ComponentRegistry()
                                                        .RegisterThermos<RandomFakedThermocouple>()
                                                        .RegisterPids<TestPid>()) {

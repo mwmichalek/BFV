@@ -8,14 +8,22 @@ using System.Linq;
 using System.Text;
 
 namespace BFV.Components {
+
+    public interface IPid : ILocatableComponent,
+                            IRefreshableComponent,
+                            IComponentStateChangePublisher<PidState>,
+                            IComponentStateRequestSubscriber<PidState>,
+                            IComponentStateRequestPublisher<PidState>,
+                            IComponentStateChangeSubscriber<ThermocoupleState>,
+                            IComponentStateRequestPublisher<SsrState> {
+
+    }
+
+
+
+
     public class Pid : StateComponent<PidState>, 
-                       ILocatableComponent,
-                       IRefreshableComponent,
-                       IComponentStateChangePublisher<PidState>,
-                       IComponentStateRequestSubscriber<PidState>,
-                       IComponentStateRequestPublisher<PidState>,
-                       IComponentStateChangeSubscriber<ThermocoupleState>,
-                       IComponentStateRequestPublisher<SsrState> {
+                       IPid {
 
         public Location Location { get; set; }
 
