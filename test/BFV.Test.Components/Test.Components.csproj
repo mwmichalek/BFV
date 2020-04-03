@@ -52,6 +52,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComponentRegistratorTests.cs" />
     <Compile Include="ThermocoupleTests.cs" />
     <Compile Include="PidTests.cs" />
     <Compile Include="RandomFakedThermocoupleTests.cs" />
