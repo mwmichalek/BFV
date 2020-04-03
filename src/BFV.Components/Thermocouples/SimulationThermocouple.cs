@@ -9,26 +9,34 @@ namespace BFV.Components.Thermocouples {
     public class SimulationThermocouple : Thermocouple,
                                           IComponentStateChangeSubscriber<SsrState> {
 
+        
+        private const double COOLING_RATIO = 0.1;
+
         public double TemperatureChange { get; set; } = 0;
 
         public SimulationThermocouple(ILogger logger) : base(logger) {
-            CurrentState = new ThermocoupleState { Temperature = 70 };
-
-            // Spawn thread
+            CurrentState = new ThermocoupleState { Temperature = Temperature.RoomTemp };
         }
 
         public void ComponentStateChangeOccurred(ComponentStateChange<SsrState> stateChange) {
             var percentage = stateChange.CurrentState.Percentage / 100;
-            TemperatureChange = percentage - 0.1;  // Anything below 10% decreases water temperature.
+            TemperatureChange = percentage - COOLING_RATIO;  // Anything below 10% decreases water temperature.
         }
 
         public override void Refresh() {
-            PriorState = CurrentState;
-            CurrentState = new ThermocoupleState {
-                Temperature = PriorState.Temperature + TemperatureChange
-            };
-
-            _publishThermocoupleStateChange(this.CreateComponentStateChange());
+            var newTemp = CurrentState.Temperature + TemperatureChange;
+            if (newTemp < Temperature.RoomTemp) newTemp = Temperature.RoomTemp;
+            if (newTemp > Temperature.BoilingTemp) newTemp = Temperature.BoilingTemp;
+            
+            // Only update if there is a temp change
+            if (newTemp != CurrentState.Temperature) {
+                PriorState = CurrentState;
+                CurrentState = new ThermocoupleState {
+                    Temperature = newTemp
+                };
+                _logger.Information($"Thermo: {Location} {CurrentState}");
+                _publishThermocoupleStateChange(this.CreateComponentStateChange());
+            }
         }
     }
 }

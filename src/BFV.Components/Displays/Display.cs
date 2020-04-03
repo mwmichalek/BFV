@@ -18,11 +18,11 @@ namespace BFV.Components.Displays {
         }
 
         public void ComponentStateChangeOccurred(ComponentStateChange<PidState> stateChange) {
-            _logger.Debug($"PidStateChangeOccured: {stateChange.Location}");
+            //_logger.Debug($"PidStateChangeOccured: {stateChange.Location}");
         }
 
         public void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
-            _logger.Debug($"ThermometerStateChangeOccured: {stateChange.Location}");
+            //_logger.Debug($"ThermometerStateChangeOccured: {stateChange.Location}");
         }
     }
 }

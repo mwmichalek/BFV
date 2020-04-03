@@ -17,7 +17,7 @@ namespace BFV.Components.Thermocouples {
     public class Thermocouple : StateComponent<ThermocoupleState>,
                                 IThermocouple {
 
-        private readonly ILogger _logger;
+        protected readonly ILogger _logger;
 
         public Location Location { get; set; }
 

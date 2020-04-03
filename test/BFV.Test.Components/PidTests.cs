@@ -11,9 +11,40 @@ using BFV.Components.States;
 using PubSub;
 using Moq;
 using System.Linq;
+using Serilog;
+using static BFV.Components.ComponentRegistrator;
 
 namespace BFV.Test.Components {
     public class PidTests {
+
+
+        [Fact]
+        public void ThermoChangeTriggersSsrRequest() {
+
+            var logger = new Mock<ILogger>();
+            var mockHub = new Mock<IHub>();
+            var hub = mockHub.Object;
+
+            var pid = new Pid(logger.Object);
+            pid.CurrentState = new PidState {
+                IsEngaged = true,
+                SetPoint = 140,
+                Temperature = Temperature.RoomTemp,
+            };
+            pid.Location = Location.HLT;
+            pid.ComponentStateRequestPublisher(hub.Publish<ComponentStateRequest<SsrState>>);
+
+            pid.ComponentStateChangeOccurred(new ComponentStateChange<ThermocoupleState> {
+                Location = Location.HLT,
+                CurrentState = new ThermocoupleState {
+                    Temperature = Temperature.RoomTemp + 10
+                }
+            });
+
+            mockHub.Verify(x => x.Publish(It.Is<ComponentStateRequest<SsrState>>(req => req.Location == Location.HLT)));
+        }
+
+
 
         [Fact]
         public void CorrectPidAlertedWhenTemperatureChanges() {
