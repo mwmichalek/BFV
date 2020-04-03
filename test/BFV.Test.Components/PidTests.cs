@@ -18,26 +18,31 @@ namespace BFV.Test.Components {
         [Fact]
         public void CorrectPidAlertedWhenTemperatureChanges() {
 
-            //var mockPids = LocationHelper.PidLocations.Select(l => new Mock<IPid>().SetupGet(x => x.Location).Returns(l));
+            var mockPids = LocationHelper.PidLocations.Select(l => new Mock<IPid>().SetupProperty(x => x.Location, l)).ToList();
+            var pids = mockPids.Select(mp => mp.Object).ToList<IPid>();//
 
             using (var container = ComponentRegistrator.ComponentRegistry()
                                                        .RegisterThermos<RandomFakedThermocouple>()
-                                                       .RegisterPids<TestPid>()) {
+                                                       .RegisterPids(pids)) {
 
                 var thermo = container.GetInstance<Thermocouple>(Location.HLT);
-                TestPid correctPid = (TestPid)container.GetInstance<Pid>(Location.HLT);
-                List<TestPid> incorrectPids = new List<TestPid> {
-                    (TestPid)container.GetInstance<Pid>(Location.MT),
-                    (TestPid)container.GetInstance<Pid>(Location.BK)
+                IPid correctPid = container.GetInstance<IPid>(Location.HLT);
+                List<IPid> incorrectPids = new List<IPid> {
+                    container.GetInstance<IPid>(Location.MT),
+                    container.GetInstance<IPid>(Location.BK)
                 };
 
                 thermo.Refresh();
 
-                Assert.True(correctPid.ThermocoupleStateChangeOccured,
-                            "Correct Thermocouple didn't receive event");
-                foreach (var incorrectPid in incorrectPids)
-                    Assert.False(incorrectPid.ThermocoupleStateChangeOccured, 
-                                 "Incorrect Thermocouple received event");
+                var correctPidMock = mockPids.SingleOrDefault(mp => mp.Object.Location == Location.HLT);
+                correctPidMock.Verify(p => p.ComponentStateChangeOccurred(null), Times.Exactly(1), "Bitch didn't get called!");
+
+
+                //Assert.True(correctPid.ThermocoupleStateChangeOccured,
+                //            "Correct Thermocouple didn't receive event");
+                //foreach (var incorrectPid in incorrectPids)
+                //    Assert.False(incorrectPid.ThermocoupleStateChangeOccured, 
+                //                 "Incorrect Thermocouple received event");
             }
         }
 

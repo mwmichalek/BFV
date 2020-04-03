@@ -49,6 +49,7 @@
     <PackageReference Include="coverlet.collector" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ThermocoupleTests.cs" />
     <Compile Include="PidTests.cs" />
     <Compile Include="RandomFakedThermocoupleTests.cs" />
     <Compile Include="SsrTests.cs" />

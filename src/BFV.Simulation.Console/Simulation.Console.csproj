@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PubSub, Version=4.0.1.0, Culture=neutral, PublicKeyToken=fe4ede83ff72b2e0, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\PubSub.4.0.1\lib\netstandard2.0\PubSub.dll</HintPath>
+    </Reference>
     <Reference Include="SimpleInjector, Version=4.9.1.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
       <HintPath>..\..\packages\SimpleInjector.4.9.1\lib\net45\SimpleInjector.dll</HintPath>
     </Reference>

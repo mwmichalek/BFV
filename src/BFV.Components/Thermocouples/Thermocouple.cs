@@ -6,12 +6,16 @@ using System;
 
 namespace BFV.Components.Thermocouples {
 
+    public interface IThermocouple : IComponentStateChangePublisher<ThermocoupleState>,
+                                     ILocatableComponent,
+                                     IRefreshableComponent {
 
-    public class Thermocouple : StateComponent<ThermocoupleState>, 
-                                IComponentStateChangePublisher<ThermocoupleState>,
-                                //IComponentStateChangeSubscriber<ThermocoupleState>,
-                                ILocatableComponent,
-                                IRefreshableComponent {
+    }
+
+
+
+    public class Thermocouple : StateComponent<ThermocoupleState>,
+                                IThermocouple {
 
         private readonly ILogger _logger;
 

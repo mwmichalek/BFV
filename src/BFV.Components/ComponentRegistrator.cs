@@ -12,9 +12,30 @@ using BFV.Components.States;
 using BFV.Components.Thermocouples;
 using BFV.Common.Events;
 using BFV.Components.Displays;
+using System.Threading.Tasks;
 
 namespace BFV.Components {
     public static class ComponentRegistrator {
+
+
+        public interface IHub {
+            bool Exists<T>();
+            bool Exists<T>(object subscriber);
+            bool Exists<T>(object subscriber, Action<T> handler);
+            void Publish<T>(T data = default);
+            
+            Task PublishAsync<T>(T data = default);
+            void Subscribe<T>(Action<T> handler);
+            void Subscribe<T>(object subscriber, Action<T> handler);
+            void Subscribe<T>(Func<T, Task> handler);
+            void Subscribe<T>(object subscriber, Func<T, Task> handler);
+            void Unsubscribe();
+            void Unsubscribe(object subscriber);
+            void Unsubscribe<T>();
+            void Unsubscribe<T>(Action<T> handler);
+            void Unsubscribe<T>(object subscriber, Action<T> handler = null);
+        }
+
 
         public class HubbedContainer : Container {
 
@@ -81,21 +102,21 @@ namespace BFV.Components {
         }
 
         public static Container RegisterThermos<TThermo>(this Container container) where TThermo : Thermocouple {
-            List<Thermocouple> thermos = LocationHelper.AllLocations.Select(l => {
+            List<IThermocouple> thermos = LocationHelper.AllLocations.Select(l => {
                 TThermo thermo = (TThermo)Activator.CreateInstance(typeof(TThermo), new object[] { Log.Logger });
                 thermo.Location = l;
                 return thermo;
-            }).ToList<Thermocouple>();
+            }).ToList<IThermocouple>();
 
             return container.RegisterThermos(thermos);
         }
 
-        public static Container RegisterThermos(this Container container, List<Thermocouple> preexistingThermocouples = null) {
-            List<Thermocouple> thermos = (preexistingThermocouples == null) ?
-                LocationHelper.AllLocations.Select(l => new Thermocouple(Log.Logger) { Location = l }).ToList<Thermocouple>() :
+        public static Container RegisterThermos(this Container container, List<IThermocouple> preexistingThermocouples = null) {
+            List<IThermocouple> thermos = (preexistingThermocouples == null) ?
+                LocationHelper.AllLocations.Select(l => new Thermocouple(Log.Logger) { Location = l }).ToList<IThermocouple>() :
                 preexistingThermocouples;
 
-            container.Collection.Register<Thermocouple>(thermos);
+            container.Collection.Register<IThermocouple>(thermos);
 
             if (container is HubbedContainer hubbedContainer) {
                 foreach (var thermo in thermos) {
@@ -111,21 +132,21 @@ namespace BFV.Components {
         }
 
         public static Container RegisterPids<TPid>(this Container container) where TPid : Pid {
-            List<Pid> pids = LocationHelper.PidLocations.Select(l => {
+            List<IPid> pids = LocationHelper.PidLocations.Select(l => {
                 TPid pid = (TPid)Activator.CreateInstance(typeof(TPid), new object[] { Log.Logger });
                 pid.Location = l;
                 return pid;
-            }).ToList<Pid>();
+            }).ToList<IPid>();
 
             return container.RegisterPids(pids);
         }
 
-        public static Container RegisterPids(this Container container, List<Pid> preexistingPids = null) {
+        public static Container RegisterPids(this Container container, List<IPid> preexistingPids = null) {
 
-            List<Pid> pids = (preexistingPids == null) ?
-                LocationHelper.PidLocations.Select(l => new Pid(Log.Logger) { Location = l }).ToList() :
+            List<IPid> pids = (preexistingPids == null) ?
+                LocationHelper.PidLocations.Select(l => new Pid(Log.Logger) { Location = l }).ToList<IPid>() :
                 preexistingPids;
-            container.Collection.Register<Pid>(pids);
+            container.Collection.Register<IPid>(pids);
 
             if (container is HubbedContainer hubbedContainer) {
                 foreach (var pid in pids) {
