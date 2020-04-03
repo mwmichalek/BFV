@@ -221,7 +221,7 @@ namespace BFV.Components {
         }
 
         public static Container RefreshThermocouples(this Container container) {
-            foreach (var thermo in container.GetAllInstances<Thermocouple>()) {
+            foreach (var thermo in container.GetAllInstances<IThermocouple>()) {
                 thermo.Refresh();
             }
 

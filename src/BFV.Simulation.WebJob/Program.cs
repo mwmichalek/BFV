@@ -4,22 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Hosting;
 
 namespace BFV.Simulation.WebJob {
-    // To learn more about Microsoft Azure WebJobs SDK, please see https://go.microsoft.com/fwlink/?LinkID=320976
+    
     class Program {
-        // Please set the following connection strings in app.config for this WebJob to run:
-        // AzureWebJobsDashboard and AzureWebJobsStorage
-        static void Main() {
-            var config = new JobHostConfiguration();
-
-            if (config.IsDevelopment) {
-                config.UseDevelopmentSettings();
+        //https://docs.microsoft.com/en-us/azure/app-service/webjobs-sdk-get-started
+        static void Main(string[] args) {
+            var builder = new HostBuilder();
+            builder.ConfigureWebJobs(b => {
+                //b.AddAzureStorageCoreServices();
+            });
+            var host = builder.Build();
+            using (host) {
+                host.Run();
             }
-
-            var host = new JobHost(config);
-            // The following code ensures that the WebJob will be running continuously
-            host.RunAndBlock();
         }
     }
 }

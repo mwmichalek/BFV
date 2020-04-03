@@ -18,7 +18,10 @@ namespace BFV.Simulation.Console {
             container = ComponentRegistrator.ComponentRegistry()
                                             .RegisterComponentsForSimulation();
             var timer = new Timer(2000);
-            timer.Elapsed += RefreshThermocouples;  
+            timer.Elapsed += RefreshThermocouples;
+            timer.Start();
+
+            System.Console.ReadLine();
         }
 
         static void RefreshThermocouples(Object source, System.Timers.ElapsedEventArgs e) {
