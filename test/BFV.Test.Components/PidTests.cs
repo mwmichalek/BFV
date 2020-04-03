@@ -26,10 +26,10 @@ namespace BFV.Test.Components {
                 Temperature = Temperature.RoomTemp
             });
 
-            ComponentStateRequest<SsrState> request = null;
+            ComponentStateRequest<SsrState> ssrRequest = null;
 
             Utils.MockHub.Setup(hb => hb.Publish<ComponentStateRequest<SsrState>>(It.IsAny<ComponentStateRequest<SsrState>>()))
-                         .Callback<ComponentStateRequest<SsrState>>((req) => request = req);
+                         .Callback<ComponentStateRequest<SsrState>>((req) => ssrRequest = req);
 
             Utils.Pid.ComponentStateRequestPublisher(Utils.Hub.Publish<ComponentStateRequest<SsrState>>);
 
@@ -40,9 +40,13 @@ namespace BFV.Test.Components {
                 }
             });
 
-            //TODO: Analyze request!!!!
+            Assert.True(ssrRequest != null, "ComponentStateRequest<SsrState> was never published");
 
-            Utils.MockHub.Verify(hb => hb.Publish(It.Is<ComponentStateRequest<SsrState>>(req => req.Location == Location.HLT)));
+            var updatedSsrState = ssrRequest.UpdateState(new SsrState());
+            Assert.True(updatedSsrState.Percentage == 100, "Requested Ssr Percentage was not equal to 100");
+
+            // This is no longer needed but lets keep it so we know how to do it next time.
+            //Utils.MockHub.Verify(hb => hb.Publish(It.Is<ComponentStateRequest<SsrState>>(req => req.Location == Location.HLT)));
         }
 
         [Fact]
