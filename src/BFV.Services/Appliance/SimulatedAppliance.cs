@@ -1,28 +1,51 @@
 ﻿using BFV.Common;
+using BFV.Common.Events;
 using BFV.Components;
+using BFV.Components.States;
 using BFV.Components.Thermocouples;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PubSub;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace BFV.Services.Appliance {
 
-    public interface IAppliance {
+    public interface IAppliance : IRefreshableComponent {
 
     }
-    public class SimulatedAppliance : IAppliance {
 
-        protected readonly ILogger<SimulatedAppliance> _logger;
+    public abstract class Appliance : IAppliance {
 
-        private IList<IThermocouple> thermocouples = new List<IThermocouple>();
+        protected readonly ILogger<Appliance> _logger;
 
-        private IList<IPid> pids = new List<IPid>();
+        protected IList<IThermocouple> thermocouples = new List<IThermocouple>();
 
-        private IList<ISsr> ssrs = new List<ISsr>();
+        protected IList<IPid> pids = new List<IPid>();
 
-        public SimulatedAppliance(ILogger<SimulatedAppliance> logger,
+        protected IList<ISsr> ssrs = new List<ISsr>();
+
+        public Appliance(ILogger<Appliance> logger) {
+            _logger = logger;
+        }
+
+        protected abstract void Configure();
+
+        public abstract void Refresh();
+
+    }
+
+
+
+
+    public class SimulatedAppliance : Appliance {
+
+
+        private Hub _hub = new Hub();
+        
+
+        public SimulatedAppliance(ILogger<Appliance> logger,
                                   IThermocouple thermo1,
                                   IThermocouple thermo2,
                                   IThermocouple thermo3,
@@ -35,8 +58,8 @@ namespace BFV.Services.Appliance {
                                   IPid pid2,
                                   IPid pid3,
                                   ISsr ssr1,
-                                  ISsr ssr2) {
-            _logger = logger;
+                                  ISsr ssr2) : base(logger) {
+            
             thermocouples.Add(thermo1);
             thermocouples.Add(thermo2);
             thermocouples.Add(thermo3);
@@ -56,17 +79,51 @@ namespace BFV.Services.Appliance {
             Configure();
         }
 
-        private void Configure() {
-            for (int x = 0; x < thermocouples.Count; x++)
-                thermocouples[x].Location = LocationHelper.AllLocations[x];
+        public override void Refresh() {
+            foreach (var thermocouple in thermocouples)
+                thermocouple.Refresh();
+        }
 
-            for (int x = 0; x < pids.Count; x++)
-                pids[x].Location = LocationHelper.PidLocations[x];
+        protected override void Configure() {
+            ConfigureThermocouples();
+            ConfigureSsrs();
+            ConfigurePids();
+        }
 
-            for (int x = 0; x < ssrs.Count; x++)
-                ssrs[x].Location = LocationHelper.SsrLocations[x];
+        private void ConfigureThermocouples() {
+            int index = 0;
+            foreach (var thermocouple in thermocouples) {
+                thermocouple.Location = LocationHelper.AllLocations[index];
+                thermocouple.ComponentStateChangePublisher(_hub.Publish<ComponentStateChange<ThermocoupleState>>);
+                if (thermocouple is SimulationThermocouple ssrAwareThermo)
+                    _hub.Subscribe<ComponentStateChange<SsrState>>((Action<ComponentStateChange<SsrState>>)ssrAwareThermo.ComponentStateChangeOccurred);
+                index++;
+            }
+        }
 
-            //TODO: Wire up hub
+        
+
+        private void ConfigureSsrs() {
+            int index = 0;
+            foreach (var ssr in ssrs) {
+                ssr.Location = LocationHelper.SsrLocations[index];
+                _hub.Subscribe<ComponentStateRequest<SsrState>>((Action<ComponentStateRequest<SsrState>>)ssr.ComponentStateRequestOccurred);
+                ssr.ComponentStateChangePublisher(_hub.Publish<ComponentStateChange<SsrState>>);
+                index++;
+            }
+        }
+
+        private void ConfigurePids() {
+            int index = 0;
+            foreach (var pid in pids) {
+                pid.Location = LocationHelper.PidLocations[index];
+                _hub.Subscribe<ComponentStateChange<ThermocoupleState>>((Action<ComponentStateChange<ThermocoupleState>>)pid.ComponentStateChangeOccurred);
+                _hub.Subscribe<ComponentStateRequest<PidState>>((Action<ComponentStateRequest<PidState>>)pid.ComponentStateRequestOccurred);
+                pid.ComponentStateChangePublisher(_hub.Publish<ComponentStateChange<PidState>>);
+                pid.ComponentStateRequestPublisher(_hub.Publish<ComponentStateRequest<PidState>>);
+                pid.ComponentStateRequestPublisher(_hub.Publish<ComponentStateRequest<SsrState>>);
+                index++;
+            }
         }
 
         
