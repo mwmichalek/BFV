@@ -1,7 +1,7 @@
 ﻿using BFV.Common;
 using BFV.Common.Events;
 using BFV.Components.States;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +27,7 @@ namespace BFV.Components {
 
         public Location Location { get; set; }
 
-        protected readonly ILogger _logger;
+        protected readonly ILogger<Pid> _logger;
 
         private Action<ComponentStateChange<PidState>> _publishPidStateChanged;
 
@@ -43,7 +43,7 @@ namespace BFV.Components {
 
         private int _percentage = 0;
 
-        public Pid(ILogger logger) {
+        public Pid(ILogger<Pid> logger) {
             _logger = logger;
         }
 
@@ -92,7 +92,7 @@ namespace BFV.Components {
 
         public virtual void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
             if (stateChange.Location == Location) {
-                _logger.Information($"Need to recalculate value for Pid: {Location}");
+                _logger.LogInformation($"Need to recalculate value for Pid: {Location}");
                 PriorState = CurrentState;
                 CurrentState = CurrentState.Clone();
                 CurrentState.Temperature = stateChange.CurrentState.Temperature;

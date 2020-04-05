@@ -1,8 +1,8 @@
 ﻿using BFV.Common;
 using BFV.Common.Events;
 using BFV.Components.States;
-using Serilog;
 using System;
+using Microsoft.Extensions.Logging;
 
 namespace BFV.Components.Thermocouples {
 
@@ -17,13 +17,13 @@ namespace BFV.Components.Thermocouples {
     public class Thermocouple : StateComponent<ThermocoupleState>,
                                 IThermocouple {
 
-        protected readonly ILogger _logger;
+        protected readonly ILogger<Thermocouple> _logger;
 
         public Location Location { get; set; }
 
         protected Action<ComponentStateChange<ThermocoupleState>> _publishThermocoupleStateChange;
 
-        public Thermocouple(ILogger logger) {
+        public Thermocouple(ILogger<Thermocouple> logger) {
             _logger = logger;
         }
 

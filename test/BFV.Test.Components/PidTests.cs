@@ -12,7 +12,7 @@ using PubSub;
 using Moq;
 using System.Linq;
 using Serilog;
-using static BFV.Components.ComponentRegistrator;
+using static BFV.Services.ComponentRegistrator;
 
 namespace BFV.Test.Components {
     public class PidTests {

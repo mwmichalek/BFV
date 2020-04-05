@@ -1,4 +1,4 @@
-﻿using Serilog;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Text;
 namespace BFV.Components.Displays {
     public class LogDisplay : Display {
 
-        public LogDisplay(ILogger logger) : base(logger) {
+        public LogDisplay(ILogger<Display> logger) : base(logger) {
 
         }
 

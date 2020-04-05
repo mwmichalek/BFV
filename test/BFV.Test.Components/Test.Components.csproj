@@ -70,6 +70,10 @@
       <Project>{dfcfbb74-846e-4ffb-999d-bb701dcf1f13}</Project>
       <Name>Components</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\BFV.Services\Services.csproj">
+      <Project>{AB1F7EAA-1F08-4CC4-8E7C-F2C9275F593D}</Project>
+      <Name>Services</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

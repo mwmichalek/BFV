@@ -1,6 +1,6 @@
 ﻿using BFV.Common.Events;
 using BFV.Components.States;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,7 +14,7 @@ namespace BFV.Components.Thermocouples {
 
         public double TemperatureChange { get; set; } = 0;
 
-        public SimulationThermocouple(ILogger logger) : base(logger) {
+        public SimulationThermocouple(ILogger<Thermocouple> logger) : base(logger) {
             CurrentState = new ThermocoupleState { Temperature = Temperature.RoomTemp };
         }
 
@@ -34,7 +34,7 @@ namespace BFV.Components.Thermocouples {
                 CurrentState = new ThermocoupleState {
                     Temperature = newTemp
                 };
-                _logger.Information($"Thermo: {Location} {CurrentState}");
+                _logger.LogInformation($"Thermo: {Location} {CurrentState}");
                 _publishThermocoupleStateChange(this.CreateComponentStateChange());
             }
         }

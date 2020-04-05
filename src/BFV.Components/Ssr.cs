@@ -1,7 +1,7 @@
 ﻿using BFV.Common;
 using BFV.Common.Events;
 using BFV.Components.States;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,17 +9,23 @@ using System.Threading;
 //using Windows.Devices.Gpio;
 
 namespace BFV.Components {
+
+    public interface ISsr : ILocatableComponent,
+                            IComponentStateChangePublisher<SsrState>,
+                            IComponentStateRequestSubscriber<SsrState> {
+
+    }
+
+
     public class Ssr : StateComponent<SsrState>,
-                       ILocatableComponent,
-                       IComponentStateChangePublisher<SsrState>,
-                       IComponentStateRequestSubscriber<SsrState> {
+                       ISsr {
 
         private Dictionary<Location, int> _pinLookup = new Dictionary<Location, int> {
             { Location.HLT, 23 },
             { Location.BK, 24 }
         };
 
-        protected readonly ILogger _logger;
+        protected readonly ILogger<Ssr> _logger;
 
         private int _pinNumber { get; set; }
 
@@ -33,7 +39,7 @@ namespace BFV.Components {
 
         private Action<ComponentStateChange<SsrState>> _publishSsrStateChanged;
 
-        public Ssr(ILogger logger) {
+        public Ssr(ILogger<Ssr> logger) {
             _logger = logger;
 
             //TODO: Wire up SSR GPIO

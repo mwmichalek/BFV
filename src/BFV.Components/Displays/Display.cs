@@ -1,7 +1,7 @@
 ﻿using BFV.Common;
 using BFV.Common.Events;
 using BFV.Components.States;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,9 +11,9 @@ namespace BFV.Components.Displays {
                                     IComponentStateChangeSubscriber<PidState>,
                                     IComponentStateChangeSubscriber<ThermocoupleState> {
 
-        private readonly ILogger _logger;
+        private readonly ILogger<Display> _logger;
 
-        public Display(ILogger logger) {
+        public Display(ILogger<Display> logger) {
             _logger = logger;
         }
 

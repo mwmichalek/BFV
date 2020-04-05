@@ -1,5 +1,6 @@
 ﻿using BFV.Common.Events;
 using BFV.Components.States;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace BFV.Components.Thermocouples {
 
         private Random random = new Random();
 
-        public RandomFakedThermocouple(ILogger logger) : base(logger) {
+        public RandomFakedThermocouple(ILogger<Thermocouple> logger) : base(logger) {
             CurrentState = new ThermocoupleState { Temperature = 70 };
         }
 
