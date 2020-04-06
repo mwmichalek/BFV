@@ -11,7 +11,6 @@ using BFV.Components.States;
 using PubSub;
 using Moq;
 using System.Linq;
-using static BFV.Services.ComponentRegistrator;
 using BFV.Services.Hub;
 using Microsoft.Extensions.Logging;
 
