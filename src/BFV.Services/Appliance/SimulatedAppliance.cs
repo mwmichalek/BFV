@@ -97,6 +97,15 @@ namespace BFV.Services.Appliance {
             ssrs.Add(ssr2);
 
             Configure();
+
+            _hub.Publish<ComponentStateRequest<PidState>>(new ComponentStateRequest<PidState> {
+                Location = Location.HLT,
+                Updates = (state) => {
+                    state.SetPoint = Temperature.RoomTemp + 10;
+                    state.PidMode = PidMode.Temperature;
+                    state.IsEngaged = true;
+                }
+            });
         }
 
         public override void Refresh() {

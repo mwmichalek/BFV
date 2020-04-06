@@ -11,9 +11,11 @@ namespace BFV.Components.States {
 
         public PidMode PidMode { get; set; } = PidMode.Temperature;
 
-        public double SetPoint { get; set; } = double.MinValue;
+        public double SetPoint { get; set; } = BFV.Components.States.Temperature.RoomTemp;
 
-        public double Temperature { get; set; } = double.MinValue;
+        public double Temperature { get; set; } = BFV.Components.States.Temperature.RoomTemp;
+
+        public double Percentage { get; set; } = 0;
 
         public double GainProportional { get; set; } = 18;
 
@@ -33,7 +35,8 @@ namespace BFV.Components.States {
                 Temperature = Temperature,
                 GainProportional = GainProportional,
                 GainIntegral = GainIntegral,
-                GainDerivative = GainDerivative
+                GainDerivative = GainDerivative,
+                Percentage = Percentage
             };
         }
 

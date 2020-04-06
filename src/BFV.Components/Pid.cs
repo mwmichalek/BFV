@@ -50,9 +50,10 @@ namespace BFV.Components {
         
 
         public void Refresh() {
-            if (PriorState.IsEngaged && !CurrentState.IsEngaged)
+            if (PriorState.IsEngaged && !CurrentState.IsEngaged) {
+                
                 UpdateSsr(0);
-
+            }
             if (CurrentState.IsEngaged) {
                 if (CurrentState.PidMode == PidMode.Temperature && CurrentState.Temperature != double.MinValue) {
                     var currentTime = DateTime.Now;
@@ -81,6 +82,7 @@ namespace BFV.Components {
 
                     _lastRun = currentTime;
 
+                    CurrentState.Percentage = output;
                     UpdateSsr((int)output);
 
                 } else if (CurrentState.PidMode == PidMode.Percentage) {
@@ -88,11 +90,16 @@ namespace BFV.Components {
                     UpdateSsr((int)CurrentState.SetPoint);
                 }
             }
+
+            if (_publishPidStateChanged != null) {
+                //TODO: Determine if state changed.
+                _publishPidStateChanged(CreateComponentStateChange());
+            }
         }
 
         public virtual void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
             if (stateChange.Location == Location) {
-                _logger.LogInformation($"Need to recalculate value for Pid: {Location}");
+                //_logger.LogInformation($"Need to recalculate value for Pid: {Location}");
                 PriorState = CurrentState;
                 CurrentState = CurrentState.Clone();
                 CurrentState.Temperature = stateChange.CurrentState.Temperature;
@@ -115,9 +122,6 @@ namespace BFV.Components {
                         });
                     }
                 }
-
-                if (_publishPidStateChanged != null)
-                    _publishPidStateChanged(CreateComponentStateChange());
 
                 Refresh();
             }
