@@ -15,13 +15,13 @@ namespace BFV.Components.States {
 
         public double Temperature { get; set; } = BFV.Components.States.Temperature.RoomTemp;
 
-        public double Percentage { get; set; } = 0;
+        //public double Percentage { get; set; } = 0;
 
-        public double GainProportional { get; set; } = 18;
+        public double GainProportional { get; set; } = 4;
 
-        public double GainIntegral { get; set; } = 1.5;
+        public double GainIntegral { get; set; } = 0.2;
 
-        public double GainDerivative { get; set; } = 22.5;
+        public double GainDerivative { get; set; } = 1;
 
         public override string ToString() {
             return $"PID - SetPoint: {SetPoint} Time: {Timestamp.Second}:{Timestamp.Millisecond}";
@@ -36,7 +36,7 @@ namespace BFV.Components.States {
                 GainProportional = GainProportional,
                 GainIntegral = GainIntegral,
                 GainDerivative = GainDerivative,
-                Percentage = Percentage
+                //Percentage = Percentage
             };
         }
 

@@ -18,6 +18,7 @@ namespace BFV.Simulation.WorkerService {
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
+            _logger.LogInformation("Starting Worker...");
             while (!stoppingToken.IsCancellationRequested) {
                 _appliance.Refresh();
                 await Task.Delay(2000, stoppingToken);

@@ -64,6 +64,8 @@ namespace BFV.Components {
                 if (!PriorState.IsEngaged && CurrentState.IsEngaged) Start();
                 if (PriorState.IsEngaged && !CurrentState.IsEngaged) Stop();
 
+                _logger.LogInformation($"SSR: {Location} {CurrentState}");
+
                 _publishSsrStateChanged(CreateComponentStateChange());
             }
         }

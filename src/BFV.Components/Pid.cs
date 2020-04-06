@@ -82,7 +82,7 @@ namespace BFV.Components {
 
                     _lastRun = currentTime;
 
-                    CurrentState.Percentage = output;
+                    //CurrentState.Percentage = output;
                     UpdateSsr((int)output);
 
                 } else if (CurrentState.PidMode == PidMode.Percentage) {
