@@ -40,6 +40,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection">
+      <Version>3.1.3</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging">
+      <Version>3.1.3</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <PackageReference Include="Moq">
       <Version>4.13.1</Version>
@@ -53,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ComponentRegistratorTests.cs" />
+    <Compile Include="SimulatedApplianceBaseTests.cs" />
     <Compile Include="ThermocoupleTests.cs" />
     <Compile Include="PidTests.cs" />
     <Compile Include="RandomFakedThermocoupleTests.cs" />

@@ -9,10 +9,18 @@ using PubSub;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
+using BFV.Services.Hub;
 
 namespace BFV.Services.Appliance {
 
     public interface IAppliance : IRefreshableComponent {
+
+        IThermocouple GetThermocouple(Location location);
+
+        ISsr GetSsr(Location location);
+
+        IPid GetPid(Location location);
 
     }
 
@@ -30,6 +38,18 @@ namespace BFV.Services.Appliance {
             _logger = logger;
         }
 
+        public IThermocouple GetThermocouple(Location location) {
+            return thermocouples.SingleOrDefault(t => t.Location == location);
+        }
+
+        public ISsr GetSsr(Location location) {
+            return ssrs.SingleOrDefault(s => s.Location == location);
+        }
+
+        public IPid GetPid(Location location) {
+            return pids.SingleOrDefault(p => p.Location == location);
+        }
+
         protected abstract void Configure();
 
         public abstract void Refresh();
@@ -41,11 +61,10 @@ namespace BFV.Services.Appliance {
 
     public class SimulatedAppliance : Appliance {
 
-
-        private Hub _hub = new Hub();
-        
+        private IHub _hub;
 
         public SimulatedAppliance(ILogger<Appliance> logger,
+                                  IHub hub,
                                   IThermocouple thermo1,
                                   IThermocouple thermo2,
                                   IThermocouple thermo3,
@@ -59,6 +78,7 @@ namespace BFV.Services.Appliance {
                                   IPid pid3,
                                   ISsr ssr1,
                                   ISsr ssr2) : base(logger) {
+            _hub = hub;
             
             thermocouples.Add(thermo1);
             thermocouples.Add(thermo2);
@@ -131,15 +151,19 @@ namespace BFV.Services.Appliance {
 
     public static class SimulatedApplianceHelper {
 
-        public static IServiceCollection RegisterSimulatedApplianceComponents(this IServiceCollection services) {
+        public static IServiceCollection RegisterSimulatedApplianceComponents(this IServiceCollection services, IHub hub = null) {
 
             services.AddTransient<IThermocouple, SimulationThermocouple>();
             services.AddTransient<IPid, Pid>();
             services.AddTransient<ISsr, Ssr>();
             services.AddSingleton<IAppliance, SimulatedAppliance>();
 
-            return services;
+            if (hub == null)
+                services.AddSingleton<IHub>((serviceProvider) => new PubSubHub());
+            else
+                services.AddSingleton<IHub>((serviceProvider) => hub);
 
+            return services;
         }
 
     }

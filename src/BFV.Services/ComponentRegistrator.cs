@@ -17,23 +17,7 @@ namespace BFV.Services {
     public static class ComponentRegistrator {
 
 
-        public interface IHub {
-            bool Exists<T>();
-            bool Exists<T>(object subscriber);
-            bool Exists<T>(object subscriber, Action<T> handler);
-            void Publish<T>(T data = default);
-            
-            Task PublishAsync<T>(T data = default);
-            void Subscribe<T>(Action<T> handler);
-            void Subscribe<T>(object subscriber, Action<T> handler);
-            void Subscribe<T>(Func<T, Task> handler);
-            void Subscribe<T>(object subscriber, Func<T, Task> handler);
-            void Unsubscribe();
-            void Unsubscribe(object subscriber);
-            void Unsubscribe<T>();
-            void Unsubscribe<T>(Action<T> handler);
-            void Unsubscribe<T>(object subscriber, Action<T> handler = null);
-        }
+        
 
 
         //public class HubbedContainer : Container {
@@ -81,7 +65,7 @@ namespace BFV.Services {
  
         public static IServiceCollection RegisterHub(this IServiceCollection services) {
 
-            services.AddSingleton<Hub>();
+            //_ = services.AddSingleton<IHub>();
 
             //if (container is HubbedContainer hubbedContainer) 
             //    container.RegisterSingleton<Hub>(() => { return hubbedContainer.Hub; });

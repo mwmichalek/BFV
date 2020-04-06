@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>BFV.Services</RootNamespace>
+    <AssemblyName>BFV.Services</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
