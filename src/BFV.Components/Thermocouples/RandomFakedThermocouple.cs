@@ -1,7 +1,6 @@
 ﻿using BFV.Common.Events;
 using BFV.Components.States;
 using Microsoft.Extensions.Logging;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Text;

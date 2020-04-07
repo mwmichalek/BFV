@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="PubSub" Version="4.0.1" />
-    <PackageReference Include="Serilog.Sinks.Trace" Version="2.1.0" />
   </ItemGroup>
 
 </Project>
