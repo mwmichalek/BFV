@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 using BFV.Components;
-using BFV.Components.Thermocouples;
-using BFV.Test.Components.TestComponents;
 using BFV.Common;
 using BFV.Common.Events;
 using BFV.Components.States;
@@ -19,7 +17,7 @@ namespace BFV.Test.Components {
 
         [Fact]
         public void EnablingPidSendsRequestToDisableOtherPids() {
-            var Utils = CreateHub(Location.HLT, new PidState {
+            var Utils = CreateUtils(Location.HLT, new PidState {
                 IsEngaged = false
             });
 
@@ -54,7 +52,7 @@ namespace BFV.Test.Components {
 
         [Fact]
         public void DisablingPidDisablesSsrs() {
-            var Utils = CreateHub(Location.HLT, new PidState {
+            var Utils = CreateUtils(Location.HLT, new PidState {
                 IsEngaged = true,
                 SetPoint = Temperature.BoilingTemp,
                 Temperature = Temperature.BoilingTemp
@@ -83,7 +81,7 @@ namespace BFV.Test.Components {
         [Fact]
         public void ThermoChangeTriggersSsrRequest() {
 
-            var Utils = CreateHub(Location.HLT, new PidState {
+            var Utils = CreateUtils(Location.HLT, new PidState {
                 IsEngaged = true,
                 SetPoint = 140,
                 Temperature = Temperature.RoomTemp
@@ -115,7 +113,7 @@ namespace BFV.Test.Components {
         [Fact]
         public void PidRequestTriggersPidChange() {
 
-            var Utils = CreateHub(Location.HLT, new PidState {
+            var Utils = CreateUtils(Location.HLT, new PidState {
                 IsEngaged = true,
                 SetPoint = 140,
                 Temperature = Temperature.RoomTemp
@@ -139,7 +137,7 @@ namespace BFV.Test.Components {
             Assert.True(pidChange.CurrentState.SetPoint == 120, "Requested Pid SetPoint was not equal to 120");
         }
 
-        private (Mock<IHub> MockHub, IHub Hub, IPid Pid) CreateHub(Location location, PidState state) {
+        private (Mock<IHub> MockHub, IHub Hub, IPid Pid) CreateUtils(Location location, PidState state) {
             var logger = new Mock<ILogger<Pid>>();
             var mockHub = new Mock<IHub>();
             var hub = mockHub.Object;

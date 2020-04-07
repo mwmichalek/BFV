@@ -19,7 +19,7 @@ namespace BFV.Components.Thermocouples {
 
         public void ComponentStateChangeOccurred(ComponentStateChange<SsrState> stateChange) {
             if (stateChange.Location == Location) {
-                var percentage = stateChange.CurrentState.Percentage / 100;
+                double percentage = (double)stateChange.CurrentState.Percentage / 100d;
                 TemperatureChange = percentage - COOLING_RATIO;  // Anything below 10% decreases water temperature.
             }
         }

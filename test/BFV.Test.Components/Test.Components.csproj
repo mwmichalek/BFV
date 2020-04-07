@@ -58,14 +58,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ComponentRegistratorTests.cs" />
     <Compile Include="SimulatedApplianceBaseTests.cs" />
-    <Compile Include="ThermocoupleTests.cs" />
+    <Compile Include="SimulationThermocoupleTests.cs" />
     <Compile Include="PidTests.cs" />
-    <Compile Include="RandomFakedThermocoupleTests.cs" />
     <Compile Include="SsrTests.cs" />
-    <Compile Include="TestComponents\TestPid.cs" />
-    <Compile Include="TestComponents\TestSsr.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
