@@ -19,7 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3) Clients", "3) Clients", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simulation.WorkerService", "src\BFV.Simulation.WorkerService\Simulation.WorkerService.csproj", "{D9D0A41D-4DB2-497D-A40B-784A1E8A591C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "src\BFV.Services\Services.csproj", "{AB1F7EAA-1F08-4CC4-8E7C-F2C9275F593D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "src\BFV.Services\Services.csproj", "{AB1F7EAA-1F08-4CC4-8E7C-F2C9275F593D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

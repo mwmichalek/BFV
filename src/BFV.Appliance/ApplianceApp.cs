@@ -17,8 +17,7 @@ namespace BFV.Appliance {
                        Device.Pins.OnboardLedGreen,
                        Device.Pins.OnboardLedBlue);
 
-            var container = ComponentRegistrator.ComponentRegistry().RegisterAllComponents();
-
+            
             PulseRgbPwmLed();
         }
 
