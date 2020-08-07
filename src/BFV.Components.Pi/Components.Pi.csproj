@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>BFV.Components.Pi</AssemblyName>
+    <RootNamespace>BFV.Components.Pi</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Iot.Device.Bindings" Version="1.0.0" />
+    <PackageReference Include="System.Device.Gpio" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BFV.Common\Common.csproj" />
+    <ProjectReference Include="..\BFV.Components\Components.csproj" />
+  </ItemGroup>
+
+</Project>

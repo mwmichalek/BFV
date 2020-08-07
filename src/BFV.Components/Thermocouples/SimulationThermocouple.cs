@@ -35,7 +35,7 @@ namespace BFV.Components.Thermocouples {
                 CurrentState = new ThermocoupleState {
                     Temperature = newTemp
                 };
-                _logger.LogInformation($"Thermo: {Location} {CurrentState}");
+                //_logger.LogInformation($"Thermo: {Location} {CurrentState}");
                 _publishThermocoupleStateChange(this.CreateComponentStateChange());
             }
         }

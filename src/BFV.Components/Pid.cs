@@ -16,11 +16,7 @@ namespace BFV.Components {
                             IComponentStateRequestPublisher<PidState>,
                             IComponentStateChangeSubscriber<ThermocoupleState>,
                             IComponentStateRequestPublisher<SsrState> {
-
     }
-
-
-
 
     public class Pid : StateComponent<PidState>, 
                        IPid {
@@ -37,17 +33,13 @@ namespace BFV.Components {
 
         private DateTime _lastRun;
 
-        private bool _isRunning = false;
-
-        private int _dutyCycleInMillis = 2000;
-
-        private int _percentage = 0;
+        //private bool _isRunning = false;
+        //private int _dutyCycleInMillis = 2000;
+        //private int _percentage = 0;
 
         public Pid(ILogger<Pid> logger) {
             _logger = logger;
         }
-
-        
 
         public void Refresh() {
             if (PriorState.IsEngaged && !CurrentState.IsEngaged) {
@@ -91,10 +83,12 @@ namespace BFV.Components {
                 }
             }
 
-            if (_publishPidStateChanged != null) {
+            //if (_publishPidStateChanged != null) {
+                // *********** DOES THIS NEED TO HAPPEN?  DOES THE PID actually change or just the underlying SSRS?
+
                 //TODO: Determine if state changed.
-                _publishPidStateChanged(CreateComponentStateChange());
-            }
+                //_publishPidStateChanged(CreateComponentStateChange());
+            //}
         }
 
         public virtual void ComponentStateChangeOccurred(ComponentStateChange<ThermocoupleState> stateChange) {
@@ -122,6 +116,9 @@ namespace BFV.Components {
                         });
                     }
                 }
+
+                //TODO: Determine if this needs to be published at all.
+                _publishPidStateChanged(CreateComponentStateChange());
 
                 Refresh();
             }

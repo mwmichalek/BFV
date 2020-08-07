@@ -11,53 +11,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using BFV.Services.Hub;
+using BFV.Components.EventRecorders;
+using BFV.Components.Ssrs;
+using BFV.Services.Appliances;
 
-namespace BFV.Services.Appliance {
-
-    public interface IAppliance : IRefreshableComponent {
-
-        IThermocouple GetThermocouple(Location location);
-
-        ISsr GetSsr(Location location);
-
-        IPid GetPid(Location location);
-
-    }
-
-    public abstract class Appliance : IAppliance {
-
-        protected readonly ILogger<Appliance> _logger;
-
-        protected IList<IThermocouple> thermocouples = new List<IThermocouple>();
-
-        protected IList<IPid> pids = new List<IPid>();
-
-        protected IList<ISsr> ssrs = new List<ISsr>();
-
-        public Appliance(ILogger<Appliance> logger) {
-            _logger = logger;
-        }
-
-        public IThermocouple GetThermocouple(Location location) {
-            return thermocouples.SingleOrDefault(t => t.Location == location);
-        }
-
-        public ISsr GetSsr(Location location) {
-            return ssrs.SingleOrDefault(s => s.Location == location);
-        }
-
-        public IPid GetPid(Location location) {
-            return pids.SingleOrDefault(p => p.Location == location);
-        }
-
-        protected abstract void Configure();
-
-        public abstract void Refresh();
-
-    }
-
-
-
+namespace BFV.Simulation.WorkerService.Appliances {
 
     public class SimulatedAppliance : Appliance {
 
@@ -77,7 +35,9 @@ namespace BFV.Services.Appliance {
                                   IPid pid2,
                                   IPid pid3,
                                   ISsr ssr1,
-                                  ISsr ssr2) : base(logger) {
+                                  ISsr ssr2,
+                                  IEventRecorder eventRecorder) 
+                                : base(logger) {
             _hub = hub;
             
             thermocouples.Add(thermo1);
@@ -95,6 +55,8 @@ namespace BFV.Services.Appliance {
 
             ssrs.Add(ssr1);
             ssrs.Add(ssr2);
+
+            eventRecorders.Add(eventRecorder);
 
             Configure();
 
@@ -117,6 +79,7 @@ namespace BFV.Services.Appliance {
             ConfigureThermocouples();
             ConfigureSsrs();
             ConfigurePids();
+            ConfigureEventRecorders();
         }
 
         private void ConfigureThermocouples() {
@@ -129,8 +92,6 @@ namespace BFV.Services.Appliance {
                 index++;
             }
         }
-
-        
 
         private void ConfigureSsrs() {
             int index = 0;
@@ -155,17 +116,39 @@ namespace BFV.Services.Appliance {
             }
         }
 
-        
+        private void ConfigureEventRecorders() {
+            int index = 0;
+            foreach (var eventRecorder in eventRecorders) {
+                _hub.Subscribe<ComponentStateChange<ThermocoupleState>>((Action<ComponentStateChange<ThermocoupleState>>)eventRecorder.ComponentStateChangeOccurred);
+                _hub.Subscribe<ComponentStateChange<PumpState>>((Action<ComponentStateChange<PumpState>>)eventRecorder.ComponentStateChangeOccurred);
+                _hub.Subscribe<ComponentStateChange<PidState>>((Action<ComponentStateChange<PidState>>)eventRecorder.ComponentStateChangeOccurred);
+                _hub.Subscribe<ComponentStateChange<SsrState>>((Action<ComponentStateChange<SsrState>>)eventRecorder.ComponentStateChangeOccurred);
+
+                index++;
+            }
+        }
     }
 
     public static class SimulatedApplianceHelper {
 
         public static IServiceCollection RegisterSimulatedApplianceComponents(this IServiceCollection services, IHub hub = null) {
 
-            services.AddTransient<IThermocouple, SimulationThermocouple>();
-            services.AddTransient<IPid, Pid>();
-            services.AddTransient<ISsr, Ssr>();
-            services.AddSingleton<IAppliance, SimulatedAppliance>();
+            var isSimulation = Environment.OSVersion.Platform == System.PlatformID.Win32NT;
+
+            if (isSimulation) {
+                services.AddTransient<IThermocouple, SimulationThermocouple>();
+                services.AddTransient<IPid, Pid>();
+                services.AddTransient<ISsr, SimulationSsr>();
+                services.AddSingleton<IEventRecorder, LoggerEventRecorder>();
+                services.AddSingleton<IAppliance, SimulatedAppliance>();
+            } else {
+                services.AddTransient<IThermocouple, SimulationThermocouple>();
+                services.AddTransient<IPid, Pid>();
+                //services.AddTransient<ISsr, PiSsr>();
+                services.AddSingleton<IEventRecorder, LoggerEventRecorder>();
+                services.AddSingleton<IAppliance, SimulatedAppliance>();
+            }
+
 
             if (hub == null)
                 services.AddSingleton<IHub>((serviceProvider) => new PubSubHub());
