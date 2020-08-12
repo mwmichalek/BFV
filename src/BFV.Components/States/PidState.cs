@@ -17,11 +17,11 @@ namespace BFV.Components.States {
 
         //public double Percentage { get; set; } = 0;
 
-        public double GainProportional { get; set; } = 4;
+        public double GainProportional { get; set; } = 5;  //4
 
-        public double GainIntegral { get; set; } = 0.2;
+        public double GainIntegral { get; set; } = 3;  //0.2
 
-        public double GainDerivative { get; set; } = 1;
+        public double GainDerivative { get; set; } = 6;  //1
 
         public override string ToString() {
             return $"PID - SetPoint: {SetPoint} Time: {Timestamp.Second}:{Timestamp.Millisecond}";

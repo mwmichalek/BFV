@@ -9,7 +9,7 @@ namespace BFV.Components.Thermocouples {
     public class SimulationThermocouple : Thermocouple,
                                           IComponentStateChangeSubscriber<SsrState> {
 
-        private const double COOLING_RATIO = 0.1;
+        private const double COOLING_RATIO = 0.25;
 
         public double TemperatureChange { get; set; } = 0;
 

@@ -99,12 +99,6 @@ namespace BFV.Components.Ssrs {
             _publishSsrStateChanged(CreateComponentStateChange());
         }
     }
-
-    public enum SsrPin {
-        HLT = 23, //4,
-        BK = 24 //5
-    }
-
 }
 
 

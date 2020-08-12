@@ -35,4 +35,9 @@ namespace BFV.Components.Pi.Ssrs {
             base.Toggle(isOn);
         }
     }
+
+    public enum SsrPin {
+        HLT = 23, //4,
+        BK = 24 //5
+    }
 }
