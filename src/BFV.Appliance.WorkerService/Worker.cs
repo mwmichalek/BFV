@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BFV.Services.Appliances;
+using BFV.Components.Appliances;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 

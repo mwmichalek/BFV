@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PubSub;
 
-namespace BFV.Services.Hub {
+namespace BFV.Components.Hub {
 
     public interface IHub {
         bool Exists<T>();

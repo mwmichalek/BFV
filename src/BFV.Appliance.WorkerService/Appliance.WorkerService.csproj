@@ -12,7 +12,6 @@
     <ProjectReference Include="..\BFV.Common\Common.csproj" />
     <ProjectReference Include="..\BFV.Components.Pi\Components.Pi.csproj" />
     <ProjectReference Include="..\BFV.Components\Components.csproj" />
-    <ProjectReference Include="..\BFV.Services\Services.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Settings.job">

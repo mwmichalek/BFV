@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BFV.Services;
-using BFV.Simulation.WorkerService.Appliances;
+using Appliance.WorkerService.Appliances;
+using BFV.Appliance.WorkerService.Appliances;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -14,16 +14,28 @@ namespace BFV.Simulation.WorkerService {
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+        public static IHostBuilder CreateHostBuilder(string[] args) {
+            var hostBuilder = Host.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging => {
                     logging.AddConsole();
                     logging.AddDebug();
-                })
-                .ConfigureServices((hostContext, services) => {
+                });
+
+            var isSimulation = Environment.OSVersion.Platform == System.PlatformID.Win32NT;
+
+            if (isSimulation)
+                hostBuilder.ConfigureServices((hostContext, services) => {
                     services.RegisterSimulatedApplianceComponents();
                     services.AddHostedService<Worker>();
                 });
+            else
+                hostBuilder.ConfigureServices((hostContext, services) => {
+                    services.RegisterPiApplianceComponents();
+                    services.AddHostedService<Worker>();
+                });
+
+            return hostBuilder;
+        }
     }
 }
 
